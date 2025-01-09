@@ -3,6 +3,10 @@ import { Header } from "@/components/header";
 import { employeesService } from "@/services/employees.service";
 import { Suspense } from "react";
 
+// Disable caching for this page
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getEmployees() {
   try {
     return await employeesService.getEmployees();
