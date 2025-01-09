@@ -5,8 +5,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata = {
-  title: "Origen Dashboard",
-  description: "Origen Dashboard Application",
+  title: "Innova Admin Dashboard",
+  description: "Innova Dashboard Application",
 };
 
 export default function RootLayout({
