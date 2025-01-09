@@ -3,6 +3,10 @@ import { Header } from "@/components/header";
 import { advanceService } from "@/services/advance-service";
 import { Toaster } from "@/components/ui/sonner";
 
+// Disable caching for this page
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Page() {
   try {
     const initialData = await advanceService.getAdvances({});
