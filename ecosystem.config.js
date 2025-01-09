@@ -4,7 +4,7 @@ module.exports = {
       name: "innova-dashboard",
       script: "node_modules/next/dist/bin/next",
       args: "start",
-      cwd: "/var/www/html/innova-dashboard",
+      cwd: "/root/origen/origen-dashboard",
       instances: "1",
       autorestart: true,
       watch: false,
