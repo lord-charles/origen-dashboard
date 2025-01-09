@@ -26,56 +26,83 @@ import { Header } from "../header";
 import * as z from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import { employeesService } from "@/services/employees.service";
+import { CreateEmployeeDto } from "@/types/employee";
+import { useToast } from "@/hooks/use-toast";
 
 // Define the validation schema
-const employeeSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Invalid email address").optional(),
-  phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number"),
-  nationalId: z.string().min(6, "Invalid national ID"),
-  dateOfBirth: z.date().optional(),
-  department: z.string().min(2, "Department is required"),
-  position: z.string().min(2, "Position is required"),
-  employmentType: z.enum(["full-time", "part-time", "contract", "intern"]),
-  baseSalary: z.number().min(0, "Base salary must be a positive number"),
-  employmentStartDate: z.date(),
-  employmentEndDate: z.date().optional(),
-  // nhifDeduction: z.number().min(0).optional(),
-  // nssfDeduction: z.number().min(0).optional(),
-  paymentMethod: z.enum(["bank", "mpesa", "cash", "wallet"]).optional(),
-  bankDetails: z
-    .object({
-      bankName: z.string().optional(),
-      accountNumber: z.string().optional(),
-      branchCode: z.string().optional(),
-    })
-    .optional(),
-  mpesaDetails: z
-    .object({
-      phoneNumber: z.string().optional(),
-    })
-    .optional(),
-  emergencyContact: z
-    .object({
-      name: z.string().optional(),
-      relationship: z.string().optional(),
-      phoneNumber: z.string().optional(),
-      alternativePhoneNumber: z.string().optional(),
-    })
-    .optional(),
-  status: z
-    .enum(["active", "inactive", "suspended", "terminated"])
-    .default("active"),
-  roles: z
-    .array(z.enum(["employee", "admin", "hr", "finance"]))
-    .default(["employee"]),
-});
+const employeeSchema = z
+  .object({
+    firstName: z.string().min(2, "First name must be at least 2 characters"),
+    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    phoneNumber: z
+      .string()
+      .regex(/^254[17]\d{8}$/, "Phone number must start with 254"),
+    nationalId: z.string().min(6, "Invalid national ID"),
+    dateOfBirth: z.date().optional(),
+    department: z.string().min(2, "Department is required"),
+    position: z.string().min(2, "Position is required"),
+    employmentType: z.enum(["full-time", "part-time", "contract", "intern"]),
+    baseSalary: z.coerce
+      .number()
+      .min(0, "Base salary must be a positive number"),
+    employmentStartDate: z.date(),
+    employmentEndDate: z.date().optional(),
+    paymentMethod: z.enum(["bank", "mpesa", "cash", "wallet"]),
+    bankDetails: z
+      .object({
+        bankName: z.string().min(1, "Bank name is required"),
+        accountNumber: z.string().min(1, "Account number is required"),
+        branchCode: z.string().min(1, "Branch code is required"),
+      })
+      .optional(),
+    mpesaDetails: z
+      .object({
+        phoneNumber: z
+          .string()
+          .regex(/^254[17]\d{8}$/, "Phone number must start with 254"),
+      })
+      .optional(),
+    emergencyContact: z
+      .object({
+        name: z.string().optional(),
+        relationship: z.string().optional(),
+        phoneNumber: z
+          .string()
+          // .regex(/^254[17]\d{8}$/, "Phone number must start with 254")
+          .optional(),
+        alternativePhoneNumber: z
+          .string()
+          // .regex(/^254[17]\d{8}$/, "Phone number must start with 254")
+          .optional(),
+      })
+      .optional(),
+    status: z
+      .enum(["active", "inactive", "suspended", "terminated"])
+      .default("active"),
+    roles: z
+      .array(z.enum(["employee", "admin", "hr", "finance"]))
+      .default(["employee"]),
+  })
+  .refine(
+    (data) => {
+      if (data.paymentMethod === "bank" && !data.bankDetails) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Please provide the required payment details",
+      path: ["paymentMethod"],
+    }
+  );
 
 type EmployeeFormData = z.infer<typeof employeeSchema>;
 
 export function RegisterEmployeeComponent() {
+  const { toast } = useToast();
+
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<
     "bank" | "mpesa" | "cash" | "wallet"
@@ -86,6 +113,7 @@ export function RegisterEmployeeComponent() {
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
+    // watch,
   } = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
@@ -93,17 +121,43 @@ export function RegisterEmployeeComponent() {
       roles: ["employee"],
       paymentMethod: "mpesa",
     },
+    mode: "onChange",
   });
+
+  // Debug form values
+  // const formValues = watch();
+  // console.log("Form values:", formValues);
+  // console.log("Form errors:", errors);
 
   const onSubmit = async (data: EmployeeFormData) => {
     try {
-      // TODO: Implement API call to register employee
-      console.log("Form data:", data);
-      toast.success("Employee registered successfully!");
-      router.push("/employees"); // Redirect to employees list
+      toast({
+        title: "Registering Employee",
+        description: "Please wait while we process your request...",
+      });
+
+      // Submit the data
+      await employeesService.registerEmployee(data as CreateEmployeeDto);
+
+      // Show success toast
+      toast({
+        title: "Registration Successful",
+        description: "Employee has been registered successfully.",
+      });
+
+      // Redirect after a short delay to ensure toast is visible
+      setTimeout(() => {
+        router.push("/employees");
+      }, 4500);
     } catch (error) {
-      console.error("Error registering employee:", error);
-      toast.error("Failed to register employee. Please try again.");
+      toast({
+        title: "Registration Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+        variant: "destructive",
+      });
     }
   };
 
@@ -124,35 +178,22 @@ export function RegisterEmployeeComponent() {
             onClick={() => router.back()}
           >
             <ChevronLeft className="h-4 w-4" />
-            <span className="sr-only">Back</span>
           </Button>
-          <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-            Register New Employee
-          </h1>
-          <Badge
-            variant="outline"
-            className="ml-auto sm:ml-0 hidden lg:block border-primary"
-          >
-            Progress 10%
+          <Badge variant="outline" className="rounded-sm px-1 font-normal">
+            New Employee Registration
           </Badge>
           <div className="items-center gap-2 md:ml-auto flex">
             <Button
               type="button"
               variant="outline"
               className="gap-x-[2.3px] hidden lg:flex"
+              onClick={(e) => {
+                e.preventDefault();
+                // Add download functionality here if needed
+              }}
             >
-              <Download className="h-4 w-4" />
-              <span className="text-sm leading-5 text-[#0F3659] dark:text-gray-400">
-                Export Data
-              </span>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="hidden md:block"
-            >
-              Discard
+              <Download className="mr-2 h-4 w-4" />
+              Download Template
             </Button>
             <Button
               type="submit"
@@ -496,11 +537,11 @@ export function RegisterEmployeeComponent() {
                       render={({ field }) => (
                         <Select
                           value={field.value}
-                          onValueChange={(
-                            val: "bank" | "mpesa" | "cash" | "wallet"
-                          ) => {
+                          onValueChange={(val) => {
                             field.onChange(val);
-                            setPaymentMethod(val);
+                            setPaymentMethod(
+                              val as "bank" | "mpesa" | "cash" | "wallet"
+                            );
                           }}
                         >
                           <SelectTrigger id="paymentMethod">

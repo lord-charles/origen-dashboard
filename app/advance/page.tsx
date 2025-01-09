@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/sonner";
 export default async function Page() {
   try {
     const initialData = await advanceService.getAdvances({});
-
     return (
       <div>
         <Toaster />
@@ -14,7 +13,7 @@ export default async function Page() {
         <AdvanceModule initialData={initialData} />
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
       <div>
         <Toaster />

@@ -15,13 +15,14 @@ export interface EmergencyContact {
   alternativePhoneNumber?: string;
 }
 
-export type PaymentMethod = 'bank' | 'mpesa' | 'cash' | 'wallet';
-export type UserStatus = 'active' | 'inactive' | 'suspended' | 'terminated';
-export type EmploymentType = 'full-time' | 'part-time' | 'contract' | 'intern';
-export type UserRole = 'employee' | 'admin' | 'hr' | 'finance';
+export type PaymentMethod = "bank" | "mpesa" | "cash" | "wallet";
+export type UserStatus = "active" | "inactive" | "suspended" | "terminated";
+export type EmploymentType = "full-time" | "part-time" | "contract" | "intern";
+export type UserRole = "employee" | "admin" | "hr" | "finance";
 
 export interface User {
   id: string;
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;

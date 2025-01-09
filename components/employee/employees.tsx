@@ -15,12 +15,15 @@ import {
 } from "lucide-react";
 import { User } from "@/types/user";
 import EmployeeTable from "./employee-table/employee";
+import { useRouter } from "next/navigation";
 
 interface EmployeeModuleProps {
   initialData: PaginatedResponse<User>;
 }
 
 export default function EmployeeModule({ initialData }: EmployeeModuleProps) {
+  const router = useRouter();
+
   const stats = [
     {
       title: "Total Employees",
@@ -102,7 +105,12 @@ export default function EmployeeModule({ initialData }: EmployeeModuleProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>Employee List</CardTitle>
-            <Button size="sm">
+            <Button
+              size="sm"
+              onClick={() => {
+                router.push("/employee/new");
+              }}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Employee
             </Button>

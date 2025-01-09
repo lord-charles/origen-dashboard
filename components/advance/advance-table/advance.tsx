@@ -1,8 +1,7 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import {
-  ColumnDef,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
@@ -25,30 +24,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { DataTablePagination } from "./data-table-pagination";
-import { DataTableToolbar } from "./data-table-toolbar";
-import { User } from "@/types/user";
+import { DataTablePagination } from "./components/data-table-pagination";
+import { DataTableToolbar } from "./components/data-table-toolbar";
+import { columns } from "./components/columns";
+import { Advance } from "@/types/advance";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: User[];
+interface DataTableProps {
+  advances: Advance[];
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+export default function AdvanceTable({ advances }: DataTableProps) {
+  const [rowSelection, setRowSelection] = useState({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
-    data,
-    columns: columns as ColumnDef<User, unknown>[],
+    data: advances,
+    columns,
     state: {
       sorting,
       columnVisibility,
@@ -66,15 +59,10 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    initialState: {
-      pagination: {
-        pageSize: 5,
-      },
-    },
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-8">
       <DataTableToolbar table={table} />
       <div className="rounded-md border">
         <Table>
@@ -83,7 +71,7 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(

@@ -31,7 +31,7 @@ function handleApiError(error: unknown, defaultMessage: string): never {
     if (error.response?.status === 401) {
       toast("Session expired. Please login again.");
       TokenService.clearAll();
-      // window.location.href = "/auth/login";
+      window.location.href = "/auth/login";
       throw new ApiError(401, "Session expired");
     }
 
@@ -92,6 +92,22 @@ export const advanceService = {
       return data;
     } catch (error) {
       handleApiError(error, "Failed to update advance");
+    }
+  },
+
+  async updateStatus(
+    id: string,
+    status: string,
+    comments?: string
+  ): Promise<Advance> {
+    try {
+      const response = await api.patch(`/advances/${id}/status`, {
+        status,
+        comments,
+      });
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error, "Failed to update advance status");
     }
   },
 };

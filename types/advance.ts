@@ -1,33 +1,42 @@
-import { User } from "./user";
+export type PaymentMethod = "mpesa" | "bank" | "cash" | "wallet";
 
-export enum PaymentMethod {
-  MPESA = "MPESA",
-  BANK = "BANK",
-  CASH = "CASH",
+export type AdvanceStatus =
+  | "pending"
+  | "approved"
+  | "declined"
+  | "disbursed"
+  | "repaying"
+  | "repaid";
+
+interface AdvanceEmployee {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  employeeId: string;
 }
 
-export type AdvanceStatus = "pending" | "approved" | "declined" | "repaying" | "repaid";
-
 export interface Advance {
-  id: string;
-  employee: string | User;
+  _id: string;
+  employee: AdvanceEmployee;
   amount: number;
   amountRepaid: number;
   purpose: string;
   status: AdvanceStatus;
   requestedDate: string;
-  approvedDate?: string;
-  disbursedDate?: string;
   repaymentPeriod: number;
   interestRate: number;
   totalRepayment: number;
   installmentAmount: number;
-  comments?: string;
-  approvedBy?: string | User;
+  comments: string;
   preferredPaymentMethod: PaymentMethod;
-  disbursedBy?: string | User;
   createdAt: string;
   updatedAt: string;
+  __v: number;
+  approvedBy?: AdvanceEmployee;
+  approvedDate?: string;
+  disbursedBy?: AdvanceEmployee;
+  disbursedDate?: string;
 }
 
 export interface PaginatedAdvances {
