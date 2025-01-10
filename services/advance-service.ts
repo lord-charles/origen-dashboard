@@ -48,7 +48,7 @@ function handleApiError(error: unknown, defaultMessage: string): never {
 export const advanceService = {
   async getAdvances({
     page = 1,
-    limit = 10,
+    limit = 1000,
   }: GetAdvancesParams = {}): Promise<PaginatedAdvances> {
     try {
       const queryParams = new URLSearchParams({

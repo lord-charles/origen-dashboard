@@ -17,7 +17,7 @@ class ApiClient {
       (config) => {
         const token = TokenService.getToken();
         // if (token) {
-        config.headers.Authorization = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzdhNWFjMDA2MGFiNTEzOGY3N2ZlNWEiLCJlbWFpbCI6ImNtaWh1bnlvQHN0cmF0aG1vcmUuZWR1Iiwicm9sZXMiOlsiZW1wbG95ZWUiLCJociJdLCJpYXQiOjE3MzYzNjYwMjUsImV4cCI6MTczNjQ1MjQyNX0.wwIn6uEjOorL-VFe8O_ejXL97C9Br6oKukWLJGXVPwQ`;
+        config.headers.Authorization = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzdhNWFjMDA2MGFiNTEzOGY3N2ZlNWEiLCJlbWFpbCI6ImNtaWh1bnlvQHN0cmF0aG1vcmUuZWR1Iiwicm9sZXMiOlsiZW1wbG95ZWUiLCJociJdLCJpYXQiOjE3MzY0ODc1NTIsImV4cCI6MTczNjU3Mzk1Mn0.x65vjVIPF28DgWZSTKPx-tTguDdvW78PCPENlk6Yei0`;
         // }
         return config;
       },
