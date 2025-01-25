@@ -2,6 +2,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 export default async function LoginPage() {
   const session = await getServerSession();
@@ -28,9 +29,10 @@ export default async function LoginPage() {
         </div>
       </div>
       <div className="relative hidden lg:block">
-        <img
+        <Image
           src="/login.png"
           alt="Login background"
+          fill
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.5] "
         />
       </div>
