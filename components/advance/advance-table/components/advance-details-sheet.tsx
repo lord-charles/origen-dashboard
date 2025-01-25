@@ -105,7 +105,9 @@ export function AdvanceDetailsSheet({
             Advance Request Details
           </SheetTitle>
           <SheetDescription>
-            Submitted on {format(new Date(advance.createdAt), "PPP")}
+            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+              Submitted on {advance?.createdAt ? format(new Date(advance.createdAt), "PPP") : "N/A"}
+            </div>
           </SheetDescription>
         </SheetHeader>
 
@@ -149,18 +151,18 @@ export function AdvanceDetailsSheet({
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Name</p>
+                  <span className="text-sm text-muted-foreground">Name</span>
                   <p className="font-medium">
-                    {advance.employee.firstName} {advance.employee.lastName}
+                    {advance?.employee?.firstName} {advance?.employee?.lastName}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Employee ID</p>
-                  <p className="font-medium">{advance.employee.employeeId}</p>
+                  <span className="text-sm text-muted-foreground">Employee ID</span>
+                  <p className="font-medium">{advance?.employee?.employeeId}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">{advance.employee.email}</p>
+                  <span className="text-sm text-muted-foreground">Email</span>
+                  <p className="font-medium">{advance?.employee?.email}</p>
                 </div>
               </div>
             </CardContent>
@@ -172,63 +174,37 @@ export function AdvanceDetailsSheet({
               <h3 className="text-lg font-semibold mb-4">Advance Details</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Amount Requested
-                  </p>
-                  <p className="font-medium">
-                    {formatCurrency(advance.amount)}
-                  </p>
+                  <span className="text-sm text-muted-foreground">Amount Requested</span>
+                  <p className="font-medium">{formatCurrency(advance?.amount)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Amount Repaid</p>
-                  <p className="font-medium">
-                    {formatCurrency(advance.amountRepaid)}
-                  </p>
+                  <span className="text-sm text-muted-foreground">Amount Repaid</span>
+                  <p className="font-medium">{formatCurrency(advance?.amountRepaid)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Total Repayment
-                  </p>
-                  <p className="font-medium">
-                    {formatCurrency(advance.totalRepayment)}
-                  </p>
+                  <span className="text-sm text-muted-foreground">Total Repayment</span>
+                  <p className="font-medium">{formatCurrency(advance?.totalRepayment)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Monthly Installment
-                  </p>
-                  <p className="font-medium">
-                    {formatCurrency(advance.installmentAmount)}
-                  </p>
+                  <span className="text-sm text-muted-foreground">Monthly Installment</span>
+                  <p className="font-medium">{formatCurrency(advance?.installmentAmount)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Repayment Period
-                  </p>
-                  <p className="font-medium">
-                    {advance.repaymentPeriod} months
-                  </p>
+                  <span className="text-sm text-muted-foreground">Repayment Period</span>
+                  <p className="font-medium">{advance?.repaymentPeriod} months</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Interest Rate</p>
-                  <p className="font-medium">{advance.interestRate}%</p>
+                  <span className="text-sm text-muted-foreground">Interest Rate</span>
+                  <p className="font-medium">{advance?.interestRate}%</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Payment Method
-                  </p>
-                  <p className="font-medium capitalize">
-                    {advance.preferredPaymentMethod}
-                  </p>
+                  <span className="text-sm text-muted-foreground">Payment Method</span>
+                  <p className="font-medium capitalize">{advance?.preferredPaymentMethod}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  <Badge
-                    className={`${getStatusColor(
-                      advance.status
-                    )} font-semibold`}
-                  >
-                    {advance.status.toUpperCase()}
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <Badge className={`${getStatusColor(advance?.status)} font-semibold`}>
+                    {advance?.status?.toUpperCase()}
                   </Badge>
                 </div>
               </div>
@@ -249,26 +225,23 @@ export function AdvanceDetailsSheet({
                       <h4 className="font-medium">Approval Information</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-muted-foreground">
-                            Approved By
-                          </p>
+                          <span className="text-sm text-muted-foreground">Approved By</span>
                           <div className="space-y-1">
                             <p className="font-medium">
-                              {advance.approvedBy.firstName}{" "}
-                              {advance.approvedBy.lastName}
+                              {advance?.approvedBy?.firstName}{" "}
+                              {advance?.approvedBy?.lastName}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              {advance.approvedBy.employeeId}
-                            </p>
+                            <span className="text-sm text-muted-foreground">
+                              {advance?.approvedBy?.employeeId}
+                            </span>
                           </div>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">
-                            Approval Date
-                          </p>
+                          <span className="text-sm text-muted-foreground">Approval Date</span>
                           <p className="font-medium">
-                            {advance.approvedDate &&
-                              format(new Date(advance.approvedDate), "PPP")}
+                            {advance?.approvedDate
+                              ? format(new Date(advance.approvedDate), "PPP")
+                              : "Not yet approved"}
                           </p>
                         </div>
                       </div>
@@ -281,26 +254,23 @@ export function AdvanceDetailsSheet({
                       <h4 className="font-medium">Disbursement Information</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-muted-foreground">
-                            Disbursed By
-                          </p>
+                          <span className="text-sm text-muted-foreground">Disbursed By</span>
                           <div className="space-y-1">
                             <p className="font-medium">
-                              {advance.disbursedBy.firstName}{" "}
-                              {advance.disbursedBy.lastName}
+                              {advance?.disbursedBy?.firstName}{" "}
+                              {advance?.disbursedBy?.lastName}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              {advance.disbursedBy.employeeId}
-                            </p>
+                            <span className="text-sm text-muted-foreground">
+                              {advance?.disbursedBy?.employeeId}
+                            </span>
                           </div>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">
-                            Disbursement Date
-                          </p>
+                          <span className="text-sm text-muted-foreground">Disbursement Date</span>
                           <p className="font-medium">
-                            {advance.disbursedDate &&
-                              format(new Date(advance.disbursedDate), "PPP")}
+                            {advance?.disbursedDate
+                              ? format(new Date(advance.disbursedDate), "PPP")
+                              : "Not yet disbursed"}
                           </p>
                         </div>
                       </div>
@@ -317,13 +287,13 @@ export function AdvanceDetailsSheet({
               <h3 className="text-lg font-semibold mb-4">Additional Details</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Purpose</p>
-                  <p className="font-medium">{advance.purpose}</p>
+                  <span className="text-sm text-muted-foreground">Purpose</span>
+                  <p className="font-medium">{advance?.purpose}</p>
                 </div>
-                {advance.comments && (
+                {advance?.comments && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Comments</p>
-                    <p className="font-medium">{advance.comments}</p>
+                    <span className="text-sm text-muted-foreground">Comments</span>
+                    <p className="font-medium">{advance?.comments}</p>
                   </div>
                 )}
               </div>

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { MoonIcon, SunIcon, BellIcon } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useSession, signOut } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,10 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export function Header() {
   const { setTheme } = useTheme();
+  const { data: session } = useSession();
+  const initials = session?.user
+    ? `${session.user.firstName[0]}${session.user.lastName[0]}`.toUpperCase()
+    : "";
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-6">
@@ -24,16 +29,12 @@ export function Header() {
         <SidebarTrigger className="-ml-2" />
         <Separator orientation="vertical" className="h-6" />
         <div>
-          <p className="text-sm text-muted-foreground">Welcome back, Admin</p>
+          <p className="text-sm text-muted-foreground">
+            Welcome back, {session?.user.firstName}
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="relative">
-          <BellIcon className="h-5 w-5" />
-          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
-            3
-          </span>
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -58,21 +59,29 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/avatars/01.png" alt="@johndoe" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage
+                  src="/avatars/01.png"
+                  alt={session?.user.firstName}
+                />
+                <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuItem className="flex flex-col items-start">
-              <div className="text-sm font-medium">John Doe</div>
+              <div className="text-sm font-medium">
+                {session?.user.firstName} {session?.user.lastName}
+              </div>
               <div className="text-xs text-muted-foreground">
-                john@innova.com
+                {session?.user.email}
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+
+            <DropdownMenuItem onClick={() => signOut()}>
+              Log out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

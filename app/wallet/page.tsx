@@ -7,10 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import DashboardProvider from "../dashboard-provider";
 
 export default function WalletPage() {
   return (
-    <div>
+    <DashboardProvider>
       <Header />
       <main className="flex-1 overflow-y-auto p-6">
         <h1 className="text-3xl font-bold mb-6">Wallet</h1>
@@ -51,6 +52,6 @@ export default function WalletPage() {
           </Card>
         </div>
       </main>
-    </div>
+    </DashboardProvider>
   );
 }

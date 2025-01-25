@@ -1,11 +1,12 @@
+import DashboardProvider from "@/app/dashboard-provider";
 import { RegisterEmployeeComponent } from "@/components/employee/employee-registration";
 import React from "react";
 
 const page = () => {
   return (
-    <div>
+    <DashboardProvider>
       <RegisterEmployeeComponent />
-    </div>
+    </DashboardProvider>
   );
 };
 

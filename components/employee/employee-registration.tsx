@@ -26,9 +26,9 @@ import { Header } from "../header";
 import * as z from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { employeesService } from "@/services/employees.service";
 import { CreateEmployeeDto } from "@/types/employee";
 import { useToast } from "@/hooks/use-toast";
+import { registerEmployee } from "@/services/employees.service";
 
 // Define the validation schema
 const employeeSchema = z
@@ -137,7 +137,7 @@ export function RegisterEmployeeComponent() {
       });
 
       // Submit the data
-      await employeesService.registerEmployee(data as CreateEmployeeDto);
+      await registerEmployee(data as CreateEmployeeDto);
 
       // Show success toast
       toast({

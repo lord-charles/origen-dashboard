@@ -1,43 +1,37 @@
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/toaster";
+import NextAuthProvider from "./session-provider";
+import { authOptions } from "@/lib/auth";
 
 export const metadata = {
   title: "Innova Admin Dashboard",
   description: "Innova Dashboard Application",
 };
+import { getServerSession } from "next-auth";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
       <body>
-        <SidebarProvider
-          style={
-            {
-              "--sidebar-width": "19rem",
-            } as React.CSSProperties
-          }
-        >
-          <AppSidebar />
-          <SidebarInset>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <Toaster />
-              {children}
-            </ThemeProvider>
-          </SidebarInset>
-        </SidebarProvider>
+        <NextAuthProvider session={session}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster />
+            {children}
+          </ThemeProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

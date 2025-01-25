@@ -28,10 +28,10 @@ export const columns: ColumnDef<Advance>[] = [
       return (
         <div className="flex flex-col">
           <span className="font-medium">
-            {employee.firstName} {employee.lastName}
+            {employee?.firstName} {employee?.lastName}
           </span>
           <span className="text-xs text-muted-foreground">
-            {employee.employeeId}
+            {employee?.employeeId}
           </span>
         </div>
       );
@@ -41,9 +41,9 @@ export const columns: ColumnDef<Advance>[] = [
     id: "combinedName",
     header: "Name",
     accessorFn: (row) => {
-      const employee = row.employee;
+      const employee = row?.employee;
       if (typeof employee === "object" && employee !== null) {
-        return `${employee.firstName || ""} ${employee.lastName || ""}`;
+        return `${employee?.firstName || ""} ${employee?.lastName || ""}`;
       }
       return "";
     },
@@ -123,7 +123,9 @@ export const columns: ColumnDef<Advance>[] = [
       <DataTableColumnHeader column={column} title="Requested Date" />
     ),
     cell: ({ row }) => (
-      <div>{format(new Date(row.getValue("requestedDate")), "PPP")}</div>
+      <div className="flex flex-col">
+        <div>{row.getValue("requestedDate") ? format(new Date(row.getValue("requestedDate")), "PPP") : "N/A"}</div>
+      </div>
     ),
   },
 

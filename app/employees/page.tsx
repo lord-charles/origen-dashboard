@@ -1,7 +1,8 @@
 import EmployeeModule from "@/components/employee/employees";
 import { Header } from "@/components/header";
-import { employeesService } from "@/services/employees.service";
 import { Suspense } from "react";
+import DashboardProvider from "../dashboard-provider";
+import { getAllEmployees } from "@/services/employees.service";
 
 // Disable caching for this page
 export const dynamic = "force-dynamic";
@@ -9,7 +10,7 @@ export const revalidate = 0;
 
 async function getEmployees() {
   try {
-    return await employeesService.getEmployees();
+    return await getEmployees();
   } catch (error) {
     console.error("Failed to fetch employees:", error);
     throw error;
@@ -17,14 +18,14 @@ async function getEmployees() {
 }
 
 export default async function EmployeesPage() {
-  const employeesData = await getEmployees();
+  const employeesData = await getAllEmployees();
 
   return (
-    <div className="w-full">
+    <DashboardProvider>
       <Header />
       <Suspense fallback={<div>Loading employees...</div>}>
         <EmployeeModule initialData={employeesData} />
       </Suspense>
-    </div>
+    </DashboardProvider>
   );
 }

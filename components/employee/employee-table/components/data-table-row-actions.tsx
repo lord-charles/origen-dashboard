@@ -15,9 +15,10 @@ import {
 
 import { User } from "@/types/user";
 import Link from "next/link";
-import { employeesService } from "@/services/employees.service";
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { deleteEmployee } from "@/services/employees.service";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -35,7 +36,7 @@ export function DataTableRowActions<TData>({
     console.log("Deleting employee:", employee);
     try {
       setIsDeleting(true);
-      await employeesService.deleteEmployee(employee._id);
+      await deleteEmployee(employee._id);
       toast({
         title: "Success",
         description: "Employee deleted successfully",

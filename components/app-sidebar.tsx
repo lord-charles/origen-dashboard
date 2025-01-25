@@ -10,6 +10,7 @@ import {
   Settings,
   Wallet,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 import {
   Sidebar,
@@ -100,6 +101,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = useSession();
   const [currentPath, setCurrentPath] = React.useState("");
 
   React.useEffect(() => {
@@ -206,13 +208,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="bg-accent rounded-md">
-        <NavUser
-          user={{
-            name: "John Doe",
-            email: "john.doe@innova.com",
-            avatar: "",
-          }}
-        />
+        {session?.user && <NavUser user={session.user} />}
       </SidebarFooter>
     </Sidebar>
   );
