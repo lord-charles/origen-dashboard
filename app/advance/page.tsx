@@ -14,7 +14,7 @@ export default async function AdvancePage() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
-    redirect("/auth/login");
+    redirect("/login");
   }
 
   try {
