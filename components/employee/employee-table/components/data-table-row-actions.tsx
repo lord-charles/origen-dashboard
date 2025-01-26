@@ -66,10 +66,10 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <Link href={`/employee/${employee.id}`}>
+        <Link href={`/employees/${employee._id}`}>
           <DropdownMenuItem>View Details</DropdownMenuItem>
         </Link>
-        <Link href={`/employee/${employee.id}/edit`}>
+        <Link href={`/employees/${employee._id}/update`}>
           <DropdownMenuItem>Edit Employee</DropdownMenuItem>
         </Link>
 

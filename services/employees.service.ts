@@ -44,13 +44,12 @@ export async function getEmployeeById(id: string): Promise<User | null> {
   try {
     const config = await getAxiosConfig();
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${id}`,
       config
     );
     return response.data;
-  } catch (error) {
-    console.error("Failed to fetch employee:", error);
-    return null;
+  } catch (error: any) {
+    throw error?.response?.data.message || error;
   }
 }
 
@@ -65,9 +64,25 @@ export async function registerEmployee(
       config
     );
     return response.data;
-  } catch (error) {
-    console.error("Failed to register employee:", error);
-    return null;
+  } catch (error: any) {
+    throw error?.response?.data.message || error;
+  }
+}
+
+export async function updateEmployee(
+  id: string,
+  employee: CreateEmployeeDto
+): Promise<User | null> {
+  try {
+    const config = await getAxiosConfig();
+    const response = await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${id}`,
+      employee,
+      config
+    );
+    return response.data;
+  } catch (error: any) {
+    throw error?.response?.data.message || error;
   }
 }
 
@@ -76,8 +91,7 @@ export async function deleteEmployee(id: string): Promise<boolean> {
     const config = await getAxiosConfig();
     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`, config);
     return true;
-  } catch (error) {
-    console.error("Failed to delete employee:", error);
-    return false;
+  } catch (error: any) {
+    throw error?.response?.data.message || error;
   }
 }

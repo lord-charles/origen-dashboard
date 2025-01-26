@@ -8,15 +8,6 @@ import { getAllEmployees } from "@/services/employees.service";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-async function getEmployees() {
-  try {
-    return await getEmployees();
-  } catch (error) {
-    console.error("Failed to fetch employees:", error);
-    throw error;
-  }
-}
-
 export default async function EmployeesPage() {
   const employeesData = await getAllEmployees();
 

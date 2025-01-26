@@ -28,7 +28,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateEmployeeDto } from "@/types/employee";
 import { useToast } from "@/hooks/use-toast";
-import { registerEmployee } from "@/services/employees.service";
+import { updateEmployee } from "@/services/employees.service";
 
 // Define the validation schema
 const employeeSchema = z
@@ -61,9 +61,7 @@ const employeeSchema = z
       .object({
         phoneNumber: z
           .string()
-          .regex(/^254[17]\d{8}$/, "Phone number must start with 254")
-          .nullish()
-          .or(z.literal("")),
+          .regex(/^254[17]\d{8}$/, "Phone number must start with 254"),
       })
       .optional(),
     emergencyContact: z
@@ -102,13 +100,13 @@ const employeeSchema = z
 
 type EmployeeFormData = z.infer<typeof employeeSchema>;
 
-export function RegisterEmployeeComponent() {
+export function UpdateEmployeeComponent({ employee }: any) {
   const { toast } = useToast();
 
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<
     "bank" | "mpesa" | "cash" | "wallet"
-  >("mpesa");
+  >(employee?.paymentMethod || "mpesa");
 
   const {
     register,
@@ -119,32 +117,48 @@ export function RegisterEmployeeComponent() {
   } = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
-      status: "active",
-      roles: ["employee"],
-      paymentMethod: "mpesa",
+      firstName: employee?.firstName || "",
+      lastName: employee?.lastName || "",
+      email: employee?.email || "",
+      phoneNumber: employee?.phoneNumber || "",
+      nationalId: employee?.nationalId || "",
+      dateOfBirth: employee?.dateOfBirth
+        ? new Date(employee.dateOfBirth)
+        : undefined,
+      department: employee?.department || "",
+      position: employee?.position || "",
+      employmentType: employee?.employmentType || "full-time",
+      baseSalary: employee?.baseSalary || 0,
+      employmentStartDate: employee?.employmentStartDate
+        ? new Date(employee.employmentStartDate)
+        : new Date(),
+      employmentEndDate: employee?.employmentEndDate
+        ? new Date(employee.employmentEndDate)
+        : undefined,
+      paymentMethod: employee?.paymentMethod || "mpesa",
+      bankDetails: employee?.bankDetails || undefined,
+      mpesaDetails: employee?.mpesaDetails || undefined,
+      emergencyContact: employee?.emergencyContact || undefined,
+      status: employee?.status || "active",
+      roles: employee?.roles || ["employee"],
     },
     mode: "onChange",
   });
 
-  // Debug form values
-  // const formValues = watch();
-  // console.log("Form values:", formValues);
-  // console.log("Form errors:", errors);
-
   const onSubmit = async (data: EmployeeFormData) => {
     try {
       toast({
-        title: "Registering Employee",
+        title: "Updating Employee",
         description: "Please wait while we process your request...",
       });
 
-      // Submit the data
-      await registerEmployee(data as CreateEmployeeDto);
+      // Update instead of register
+      await updateEmployee(employee._id, data as CreateEmployeeDto);
 
       // Show success toast
       toast({
-        title: "Registration Successful",
-        description: "Employee has been registered successfully.",
+        title: "Update Successful",
+        description: "Employee has been updated successfully.",
       });
 
       // Redirect after a short delay to ensure toast is visible
@@ -153,7 +167,7 @@ export function RegisterEmployeeComponent() {
       }, 4500);
     } catch (error) {
       toast({
-        title: "Registration Failed",
+        title: "Update Failed",
         description:
           error instanceof Error
             ? error.message
@@ -165,7 +179,6 @@ export function RegisterEmployeeComponent() {
 
   return (
     <>
-      <Header />
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="px-4 flex min-h-screen w-full bg-card flex-col md:w-[87%] lg:w-full md:ml-[80px] lg:ml-0 sm:ml-0 overflow-x-hidden rounded-md"
@@ -182,7 +195,7 @@ export function RegisterEmployeeComponent() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Badge variant="outline" className="rounded-sm px-1 font-normal">
-            New Employee Registration
+            Update Employee
           </Badge>
           <div className="items-center gap-2 md:ml-auto flex">
             <Button
@@ -191,7 +204,7 @@ export function RegisterEmployeeComponent() {
               className="font-bold bg-primary"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Registering..." : "Register Now"}
+              {isSubmitting ? "Updating..." : "Update"}
             </Button>
           </div>
         </div>
@@ -672,7 +685,7 @@ export function RegisterEmployeeComponent() {
             size="lg"
             className="w-full font-bold text-lg"
           >
-            Discard
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -680,7 +693,7 @@ export function RegisterEmployeeComponent() {
             className="w-full font-bold text-lg"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Registering..." : "Register Now"}
+            {isSubmitting ? "Updating..." : "Update"}
           </Button>
         </div>
       </form>

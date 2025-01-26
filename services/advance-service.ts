@@ -59,7 +59,7 @@ export async function getAdvanceById(id: string): Promise<Advance | null> {
     return data;
   } catch (error) {
     console.error("Failed to fetch advance details:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -76,7 +76,7 @@ export async function createAdvance(
     return data;
   } catch (error) {
     console.error("Failed to create advance:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -94,7 +94,7 @@ export async function updateAdvance(
     return data;
   } catch (error) {
     console.error("Failed to update advance:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -113,6 +113,6 @@ export async function updateAdvanceStatus(
     return data;
   } catch (error) {
     console.error("Failed to update advance status:", error);
-    return null;
+    throw error;
   }
 }
