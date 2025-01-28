@@ -95,3 +95,18 @@ export async function deleteEmployee(id: string): Promise<boolean> {
     throw error?.response?.data.message || error;
   }
 }
+
+export async function getProfile(): Promise<User[]> {
+  try {
+    const config = await getAxiosConfig();
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/profile`,
+      config
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Failed to fetch user profile:", error);
+    throw error?.response?.data.message || error;
+  }
+}
+

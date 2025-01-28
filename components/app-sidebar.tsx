@@ -70,21 +70,9 @@ const data = {
       icon: "Wallet",
       items: [
         {
-          title: "Overview",
+          title: "Innova Wallet",
           url: "/wallet",
-        },
-        {
-          title: "Wallet to Wallet",
-          url: "/wallet/wallet-to-wallet",
-        },
-        {
-          title: "Wallet to M-Pesa",
-          url: "/wallet/wallet-to-mpesa",
-        },
-        {
-          title: "M-Pesa to Wallet",
-          url: "/wallet/mpesa-to-wallet",
-        },
+        }
       ],
     },
     {

@@ -15,24 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-// Generate last 30 days of dummy data
-const generateLast30DaysData = () => {
-  const data = [];
-  const today = new Date("2025-01-08"); // Using the provided current time
-
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-    data.push({
-      date: date.toISOString().split("T")[0],
-      applications: Math.floor(Math.random() * 30) + 10, // Random number between 10-40
-    });
-  }
-  return data;
-};
-
-const advanceData = generateLast30DaysData();
+import { LineChartData } from "@/types/dashboard";
 
 const chartConfig = {
   applications: {
@@ -41,10 +24,14 @@ const chartConfig = {
   },
 };
 
-export function AdvanceApplicationsChart() {
+export function AdvanceApplicationsChart({
+  data,
+}: {
+  data: { date: string; applications: number }[];
+}) {
   const total = React.useMemo(
-    () => advanceData.reduce((acc, curr) => acc + curr.applications, 0),
-    []
+    () => data.reduce((acc, curr) => acc + curr.applications, 0),
+    [data]
   );
 
   return (
@@ -67,7 +54,7 @@ export function AdvanceApplicationsChart() {
           className="aspect-auto h-[300px] w-full"
         >
           <LineChart
-            data={advanceData}
+            data={data}
             margin={{
               left: 12,
               right: 12,

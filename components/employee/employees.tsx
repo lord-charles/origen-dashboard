@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PaginatedResponse } from "@/services/employees.service";
 
@@ -101,10 +107,13 @@ export default function EmployeeModule({ initialData }: EmployeeModuleProps) {
         ))}
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-4 pt-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Employee List</CardTitle>
+            <div>
+              <CardTitle>Employee List</CardTitle>
+              <CardDescription>View and manage your employees</CardDescription>
+            </div>
             <Button
               size="sm"
               onClick={() => {

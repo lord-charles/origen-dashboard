@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   CalendarIcon,
   CreditCardIcon,
@@ -12,6 +18,7 @@ import { DatePickerWithRange } from "../date-range-picker";
 import { PaginatedAdvances } from "@/types/advance";
 import AdvanceTable from "./advance-table/advance";
 import { calculateAdvanceStats, formatCurrency } from "@/lib/advance-stats";
+import { Button } from "../ui/button";
 
 interface AdvanceModuleProps {
   initialData: PaginatedAdvances;
@@ -106,8 +113,25 @@ const AdvanceModule = ({ initialData }: AdvanceModuleProps) => {
             </CardContent>
           </Card>
         </div>
-
-        <AdvanceTable advances={initialData.data} />
+        <div className="grid gap-2 pt-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle className="text-lg font-medium">
+                  Recent Advances
+                </CardTitle>
+                <CardDescription className="text-sm font-medium">
+                  Here is a list of all Advances
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <AdvanceTable advances={initialData.data} />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

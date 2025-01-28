@@ -25,33 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Generate last 12 months of dummy data
-const generateMonthlyData = () => {
-  const data = [];
-  const today = new Date("2025-01-08"); // Using the provided current time
-
-  for (let i = 11; i >= 0; i--) {
-    const date = new Date(today);
-    date.setMonth(today.getMonth() - i);
-
-    // Generate realistic looking data
-    const totalRequests = Math.floor(Math.random() * 300) + 200; // 200-500 requests
-    const approvedRequests = Math.floor(
-      totalRequests * (Math.random() * 0.3 + 0.6)
-    ); // 60-90% approval rate
-
-    data.push({
-      date: date.toISOString().split("T")[0],
-      totalRequests,
-      approvedRequests,
-      approvalRate: Math.round((approvedRequests / totalRequests) * 100),
-    });
-  }
-  return data;
-};
-
-const monthlyData = generateMonthlyData();
+import { getMonthlyTrends } from "@/services/dashboard.service";
+import { useState, useEffect } from "react";
+import { MonthlyTrends } from "@/types/dashboard";
 
 const chartConfig = {
   trends: {
@@ -67,23 +43,37 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function MonthlyTrendsChart() {
-  const [timeRange, setTimeRange] = React.useState("12m");
+interface MonthlyTrendsChartProps {
+  monthlyTrends: MonthlyTrends[];
+}
 
-  const filteredData = React.useMemo(() => {
-    const months = timeRange === "6m" ? 6 : 12;
-    return monthlyData.slice(-months);
+export function MonthlyTrendsChart({ monthlyTrends }: MonthlyTrendsChartProps) {
+  const [timeRange, setTimeRange] = useState("6m");
+  const [monthlyTrendsData, setMonthlyTrendsData] = useState<MonthlyTrends[]>(
+    []
+  );
+  useEffect(() => {
+    const fetchData = async () => {
+      const months = timeRange === "6m" ? 6 : 12;
+      const data = await getMonthlyTrends(months);
+      setMonthlyTrendsData(data);
+    };
+
+    fetchData();
   }, [timeRange]);
 
   const totals = React.useMemo(
     () => ({
-      requests: monthlyData.reduce((acc, curr) => acc + curr.totalRequests, 0),
-      approvals: monthlyData.reduce(
+      requests: monthlyTrendsData.reduce(
+        (acc, curr) => acc + curr.totalRequests,
+        0
+      ),
+      approvals: monthlyTrendsData.reduce(
         (acc, curr) => acc + curr.approvedRequests,
         0
       ),
     }),
-    []
+    [monthlyTrendsData]
   );
 
   const averageApprovalRate = React.useMemo(
@@ -109,11 +99,11 @@ export function MonthlyTrendsChart() {
             className="w-[160px] rounded-lg sm:ml-auto"
             aria-label="Select time range"
           >
-            <SelectValue placeholder="Last 12 months" />
+            <SelectValue placeholder="Last 6 months" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="12m">Last 12 months</SelectItem>
             <SelectItem value="6m">Last 6 months</SelectItem>
+            <SelectItem value="12m">Last 12 months</SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>
@@ -122,7 +112,7 @@ export function MonthlyTrendsChart() {
           config={chartConfig}
           className="aspect-auto h-[348px] w-full"
         >
-          <AreaChart data={filteredData}>
+          <AreaChart data={monthlyTrendsData}>
             <defs>
               <linearGradient id="fillRequests" x1="0" y1="0" x2="0" y2="1">
                 <stop

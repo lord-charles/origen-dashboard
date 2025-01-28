@@ -81,7 +81,7 @@ export const columns: ColumnDef<Advance>[] = [
       <DataTableColumnHeader column={column} title="Total Repayment" />
     ),
     cell: ({ row }) => {
-      const amount = row.getValue("totalRepayment") as number;
+      const amount = Math.ceil(row.getValue("totalRepayment") as number);
       const formatted = new Intl.NumberFormat("en-KE", {
         style: "currency",
         currency: "KES",
@@ -92,7 +92,7 @@ export const columns: ColumnDef<Advance>[] = [
   {
     accessorKey: "installmentAmount",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Monthly Installment" />
+      <DataTableColumnHeader column={column} title="Fee" />
     ),
     cell: ({ row }) => {
       const amount = row.getValue("installmentAmount") as number;
@@ -124,7 +124,11 @@ export const columns: ColumnDef<Advance>[] = [
     ),
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <div>{row.getValue("requestedDate") ? format(new Date(row.getValue("requestedDate")), "PPP") : "N/A"}</div>
+        <div>
+          {row.getValue("requestedDate")
+            ? format(new Date(row.getValue("requestedDate")), "PPP")
+            : "N/A"}
+        </div>
       </div>
     ),
   },

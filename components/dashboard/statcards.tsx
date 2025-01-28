@@ -9,6 +9,7 @@ import {
   AlertCircle,
   DollarSign,
 } from "lucide-react";
+import { DashboardStats } from "@/types/dashboard";
 
 interface StatCardProps {
   title: string;
@@ -20,6 +21,10 @@ interface StatCardProps {
     direction: "up" | "down" | "neutral";
   };
   icon: React.ElementType;
+}
+
+interface DashboardStatCardsProps {
+  stats: DashboardStats;
 }
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -81,61 +86,57 @@ const StatCard: React.FC<StatCardProps> = ({
   );
 };
 
-export function DashboardStatCards() {
+export function DashboardStatCards({ stats }: DashboardStatCardsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Total Employees"
-        value="300"
-        subtitle="Across all departments"
+        value={stats.employees.total.toString()}
+        subtitle={stats.employees.description}
         trend={{
-          value: "5%",
-          label: "increase from last quarter",
-          direction: "up",
+          value: stats.employees.quarterlyGrowth,
+          label: "vs last quarter",
+          direction:
+            parseFloat(stats.employees.quarterlyGrowth) > 0
+              ? "up"
+              : parseFloat(stats.employees.quarterlyGrowth) < 0
+              ? "down"
+              : "neutral",
         }}
         icon={Users}
       />
       <StatCard
-        title="Total Advance Amount"
-        value="KSH 2,500,000"
-        subtitle="Outstanding: KSH 625,000"
-        trend={{ value: "75%", label: "repayment rate", direction: "up" }}
-        icon={DollarSign}
-      />
-      <StatCard
-        title="Active Advances"
-        value="85"
-        subtitle="56.7% of total advances"
-        trend={{ value: "25", label: "due this month", direction: "neutral" }}
-        icon={Users}
-      />
-      <StatCard
-        title="Advance Utilization"
-        value="68%"
-        subtitle="204 employees used advances"
+        title="Total Advances"
+        value={`KES ${stats.advances.total.amount.toLocaleString()}`}
+        subtitle="Total amount disbursed"
         trend={{
-          value: "12%",
-          label: "increase from last month",
-          direction: "up",
+          value: `${stats.advances.total.repaymentRate}%`,
+          label: "repayment rate",
+          direction: stats.advances.total.repaymentRate > 50 ? "up" : "down",
         }}
         icon={Wallet}
       />
       <StatCard
-        title="Avg. Interest Rate"
-        value="1.5%"
-        subtitle="Monthly rate"
+        title="Active Advances"
+        value={stats.advances.active.count.toString()}
+        subtitle={`${stats.advances.active.percentageOfTotal}% of total advances`}
         trend={{
-          value: "KSH 37,500",
-          label: "interest earned",
-          direction: "up",
+          value: `KES ${stats.advances.active.dueThisMonth.toLocaleString()}`,
+          label: "due this month",
+          direction: "neutral",
         }}
         icon={TrendingUp}
       />
       <StatCard
-        title="At-Risk Advances"
-        value="8"
-        subtitle="2.7% of total advances"
-        trend={{ value: "3", label: "less than last month", direction: "down" }}
+        title="At Risk Advances"
+        value={stats.advances.atRisk.count.toString()}
+        subtitle={`${stats.advances.atRisk.percentageOfTotal}% of total advances`}
+        trend={{
+          value: stats.advances.atRisk.changeFromLastMonth.toString(),
+          label: "vs last month",
+          direction:
+            stats.advances.atRisk.changeFromLastMonth > 0 ? "down" : "up",
+        }}
         icon={AlertCircle}
       />
     </div>

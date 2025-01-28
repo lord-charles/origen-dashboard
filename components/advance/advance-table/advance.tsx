@@ -62,7 +62,7 @@ export default function AdvanceTable({ advances }: DataTableProps) {
   });
 
   return (
-    <div className="space-y-4 mt-8">
+    <div className="space-y-4">
       <DataTableToolbar table={table} />
       <div className="rounded-md border">
         <Table>
