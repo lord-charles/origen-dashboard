@@ -106,7 +106,10 @@ export function AdvanceDetailsSheet({
           </SheetTitle>
           <SheetDescription>
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-              Submitted on {advance?.createdAt ? format(new Date(advance.createdAt), "PPP") : "N/A"}
+              Submitted on{" "}
+              {advance?.createdAt
+                ? format(new Date(advance.createdAt), "PPP")
+                : "N/A"}
             </div>
           </SheetDescription>
         </SheetHeader>
@@ -157,7 +160,9 @@ export function AdvanceDetailsSheet({
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-muted-foreground">Employee ID</span>
+                  <span className="text-sm text-muted-foreground">
+                    Employee ID
+                  </span>
                   <p className="font-medium">{advance?.employee?.employeeId}</p>
                 </div>
                 <div className="col-span-2">
@@ -174,37 +179,69 @@ export function AdvanceDetailsSheet({
               <h3 className="text-lg font-semibold mb-4">Advance Details</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-sm text-muted-foreground">Amount Requested</span>
-                  <p className="font-medium">{formatCurrency(advance?.amount)}</p>
+                  <span className="text-sm text-muted-foreground">
+                    Amount Requested
+                  </span>
+                  <p className="font-medium">
+                    {formatCurrency(advance?.amount)}
+                  </p>
                 </div>
                 <div>
-                  <span className="text-sm text-muted-foreground">Amount Repaid</span>
-                  <p className="font-medium">{formatCurrency(advance?.amountRepaid)}</p>
+                  <span className="text-sm text-muted-foreground">
+                    Amount Repaid
+                  </span>
+                  <p className="font-medium">
+                    {formatCurrency(advance?.amountRepaid)}
+                  </p>
                 </div>
                 <div>
-                  <span className="text-sm text-muted-foreground">Total Repayment</span>
-                  <p className="font-medium">{formatCurrency(advance?.totalRepayment)}</p>
+                  <span className="text-sm text-muted-foreground">
+                    Total Repayment
+                  </span>
+                  <p className="font-medium">
+                    {formatCurrency(advance?.totalRepayment)}
+                  </p>
                 </div>
                 <div>
-                  <span className="text-sm text-muted-foreground">Monthly Installment</span>
-                  <p className="font-medium">{formatCurrency(advance?.installmentAmount)}</p>
+                  <span className="text-sm text-muted-foreground">
+                    Monthly Installment
+                  </span>
+                  <p className="font-medium">
+                    {formatCurrency(advance?.installmentAmount)}
+                  </p>
                 </div>
                 <div>
-                  <span className="text-sm text-muted-foreground">Repayment Period</span>
-                  <p className="font-medium">{advance?.repaymentPeriod} months</p>
+                  <span className="text-sm text-muted-foreground">
+                    Repayment Period
+                  </span>
+                  <p className="font-medium">
+                    {advance?.repaymentPeriod} months
+                  </p>
                 </div>
                 <div>
-                  <span className="text-sm text-muted-foreground">Interest Rate</span>
+                  <span className="text-sm text-muted-foreground">
+                    Interest Rate
+                  </span>
                   <p className="font-medium">{advance?.interestRate}%</p>
                 </div>
                 <div>
-                  <span className="text-sm text-muted-foreground">Payment Method</span>
-                  <p className="font-medium capitalize">{advance?.preferredPaymentMethod}</p>
+                  <span className="text-sm text-muted-foreground">
+                    Payment Method
+                  </span>
+                  <p className="font-medium capitalize">
+                    {advance?.preferredPaymentMethod}
+                  </p>
                 </div>
                 <div>
                   <span className="text-sm text-muted-foreground">Status</span>
-                  <Badge className={`${getStatusColor(advance?.status)} font-semibold`}>
-                    {advance?.status?.toUpperCase()}
+                  <Badge
+                    className={`${getStatusColor(
+                      advance?.status
+                    )} font-semibold`}
+                  >
+                    {advance?.status === "disbursed"
+                      ? "Disburse"
+                      : advance?.status?.toUpperCase()}
                   </Badge>
                 </div>
               </div>
@@ -225,7 +262,9 @@ export function AdvanceDetailsSheet({
                       <h4 className="font-medium">Approval Information</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="text-sm text-muted-foreground">Approved By</span>
+                          <span className="text-sm text-muted-foreground">
+                            Approved By
+                          </span>
                           <div className="space-y-1">
                             <p className="font-medium">
                               {advance?.approvedBy?.firstName}{" "}
@@ -237,7 +276,9 @@ export function AdvanceDetailsSheet({
                           </div>
                         </div>
                         <div>
-                          <span className="text-sm text-muted-foreground">Approval Date</span>
+                          <span className="text-sm text-muted-foreground">
+                            Approval Date
+                          </span>
                           <p className="font-medium">
                             {advance?.approvedDate
                               ? format(new Date(advance.approvedDate), "PPP")
@@ -254,7 +295,9 @@ export function AdvanceDetailsSheet({
                       <h4 className="font-medium">Disbursement Information</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="text-sm text-muted-foreground">Disbursed By</span>
+                          <span className="text-sm text-muted-foreground">
+                            Disbursed By
+                          </span>
                           <div className="space-y-1">
                             <p className="font-medium">
                               {advance?.disbursedBy?.firstName}{" "}
@@ -266,7 +309,9 @@ export function AdvanceDetailsSheet({
                           </div>
                         </div>
                         <div>
-                          <span className="text-sm text-muted-foreground">Disbursement Date</span>
+                          <span className="text-sm text-muted-foreground">
+                            Disbursement Date
+                          </span>
                           <p className="font-medium">
                             {advance?.disbursedDate
                               ? format(new Date(advance.disbursedDate), "PPP")
@@ -292,7 +337,9 @@ export function AdvanceDetailsSheet({
                 </div>
                 {advance?.comments && (
                   <div>
-                    <span className="text-sm text-muted-foreground">Comments</span>
+                    <span className="text-sm text-muted-foreground">
+                      Comments
+                    </span>
                     <p className="font-medium">{advance?.comments}</p>
                   </div>
                 )}
