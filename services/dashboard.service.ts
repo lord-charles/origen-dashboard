@@ -17,17 +17,13 @@ export async function handleUnauthorized() {
   // const cookieStore = cookies();
   // (await cookieStore).delete("token");
   // (await cookieStore).delete("next-auth.session-token");
-  redirect("/login");
+  redirect("/unauthorized");
 }
 
-
 const getAxiosConfig = async () => {
-
   const cookieStore = await cookies();
   const token = cookieStore.get("token");
 
-
-  
   return {
     headers: {
       Authorization: token ? `Bearer ${token.value}` : "",
