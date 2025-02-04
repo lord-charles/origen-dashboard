@@ -37,8 +37,8 @@ export default function UnauthorizedPage() {
             Access Denied
           </h1>
           <p className="text-gray-600 dark:text-gray-300 text-center mb-8">
-            Your session has expired or you don't have permission to access this
-            page.
+            Your session has expired or you don&apos;t have permission to access
+            this page.
           </p>
           <button
             onClick={handleLogin}
