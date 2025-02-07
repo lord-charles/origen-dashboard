@@ -18,7 +18,6 @@ import { DatePickerWithRange } from "../date-range-picker";
 import { PaginatedAdvances } from "@/types/advance";
 import AdvanceTable from "./advance-table/advance";
 import { calculateAdvanceStats, formatCurrency } from "@/lib/advance-stats";
-import { Button } from "../ui/button";
 
 interface AdvanceModuleProps {
   initialData: PaginatedAdvances;
@@ -26,7 +25,6 @@ interface AdvanceModuleProps {
 
 const AdvanceModule = ({ initialData }: AdvanceModuleProps) => {
   const stats = calculateAdvanceStats(initialData.data, initialData.total);
-
   return (
     <div className="min-h-screen">
       <div className=" px-4 py-8">

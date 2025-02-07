@@ -29,53 +29,67 @@ interface EmployeeModuleProps {
 
 export default function EmployeeModule({ initialData }: EmployeeModuleProps) {
   const router = useRouter();
+  const activeEmployees = initialData.data.filter(
+    (emp) => emp.status === "active"
+  );
 
   const stats = [
     {
       title: "Total Employees",
-      value: initialData.total.toString(),
+      value: initialData.data.length.toString(),
       icon: Users,
       color: "text-blue-600",
-      trend: "+5%",
-      trendColor: "text-green-500",
+      trend: "Current",
+      trendColor: "text-blue-500",
     },
     {
       title: "Active Employees",
-      value: initialData.data.length.toString(),
+      value: activeEmployees.length.toString(),
       icon: UserCheck,
       color: "text-green-600",
-      trend: "+3%",
+      trend: "Working",
       trendColor: "text-green-500",
     },
     {
       title: "Inactive Employees",
-      value: "18",
+      value: initialData.data
+        .filter((emp) => emp.status !== "active")
+        .length.toString(),
       icon: UserMinus,
       color: "text-orange-600",
-      trend: "-1%",
+      trend: "Not Active",
       trendColor: "text-red-500",
     },
     {
       title: "Departments",
-      value: "12",
+      value: [
+        ...new Set(initialData.data.map((emp) => emp.department)),
+      ].length.toString(),
       icon: Briefcase,
       color: "text-purple-600",
+      trend: "Unique",
+      trendColor: "text-purple-500",
     },
     {
       title: "Average Salary",
-      value: "KES 120,000",
+      value: `KES ${Math.round(
+        activeEmployees.reduce((acc, emp) => acc + emp.baseSalary, 0) /
+          activeEmployees.length
+      ).toLocaleString()}`,
       icon: DollarSign,
       color: "text-emerald-600",
-      trend: "+3.5%",
-      trendColor: "text-green-500",
+      trend: "Active Employees",
+      trendColor: "text-emerald-500",
     },
     {
       title: "Total Payroll",
-      value: "KES 29.76M",
+      value: `KES ${activeEmployees
+        .reduce((acc, emp) => acc + emp.baseSalary, 0)
+        .toLocaleString()}`,
       icon: TrendingUp,
       color: "text-indigo-600",
-      trend: "+2.1%",
-      trendColor: "text-green-500",
+      trend: "Active Monthly",
+      trendColor: "text-indigo-500",
     },
   ];
 

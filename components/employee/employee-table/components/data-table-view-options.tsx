@@ -29,9 +29,8 @@ export function DataTableViewOptions<TData>({
         column.toggleVisibility(false); // Hide the column
       }
     });
-
-    // Log the filtered data to the console
   }, [table]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

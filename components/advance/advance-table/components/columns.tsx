@@ -78,14 +78,20 @@ export const columns: ColumnDef<Advance>[] = [
   {
     accessorKey: "totalRepayment",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Total Repayment" />
+      <DataTableColumnHeader column={column} title="Receive Amount" />
     ),
     cell: ({ row }) => {
+      const amount1 = row.original.amount as number;
+      const interestRate = row.original.interestRate as number;
+      const fee = (amount1 * interestRate) / 100;
+
       const amount = Math.ceil(row.getValue("totalRepayment") as number);
+
+      const receivedAmount = amount - fee;
       const formatted = new Intl.NumberFormat("en-KE", {
         style: "currency",
         currency: "KES",
-      }).format(amount);
+      }).format(receivedAmount);
       return <div className="font-medium">{formatted}</div>;
     },
   },
@@ -95,11 +101,13 @@ export const columns: ColumnDef<Advance>[] = [
       <DataTableColumnHeader column={column} title="Fee" />
     ),
     cell: ({ row }) => {
-      const amount = row.getValue("installmentAmount") as number;
+      const amount = row.original.amount as number;
+      const interestRate = row.original.interestRate as number;
+      const fee = (amount * interestRate) / 100;
       const formatted = new Intl.NumberFormat("en-KE", {
         style: "currency",
         currency: "KES",
-      }).format(amount);
+      }).format(fee);
       return <div className="font-medium">{formatted}</div>;
     },
   },
