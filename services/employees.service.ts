@@ -1,15 +1,21 @@
 "use server";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { User, PaginatedUsers } from "@/types/user";
 import { CreateEmployeeDto } from "@/types/employee";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
   page: number;
   limit: number;
+}
+
+export async function handleUnauthorized() {
+  "use server";
+  redirect("/unauthorized");
 }
 
 const getAxiosConfig = async () => {
@@ -36,6 +42,10 @@ export async function getAllEmployees(
     return response.data;
   } catch (error) {
     console.error("Failed to fetch employees:", error);
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     return { data: [], total: 0, page: 1, limit };
   }
 }
@@ -49,6 +59,10 @@ export async function getEmployeeById(id: string): Promise<User | null> {
     );
     return response.data;
   } catch (error: any) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     throw error?.response?.data.message || error;
   }
 }
@@ -65,6 +79,10 @@ export async function registerEmployee(
     );
     return response.data;
   } catch (error: any) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     throw error?.response?.data.message || error;
   }
 }
@@ -82,6 +100,10 @@ export async function updateEmployee(
     );
     return response.data;
   } catch (error: any) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     throw error?.response?.data.message || error;
   }
 }
@@ -92,6 +114,10 @@ export async function deleteEmployee(id: string): Promise<boolean> {
     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/user/${id}`, config);
     return true;
   } catch (error: any) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     throw error?.response?.data.message || error;
   }
 }
@@ -105,8 +131,11 @@ export async function getProfile(): Promise<User[]> {
     );
     return response.data;
   } catch (error: any) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     console.error("Failed to fetch user profile:", error);
     throw error?.response?.data.message || error;
   }
 }
-

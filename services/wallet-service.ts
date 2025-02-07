@@ -1,16 +1,16 @@
 "use server";
 
-import axios from "axios";
-import { User, PaginatedUsers } from "@/types/user";
-import { CreateEmployeeDto } from "@/types/employee";
+import axios, { AxiosError } from "axios";
+import { PaginatedUsers } from "@/types/user";
 import { cookies } from "next/headers";
-import {
-  WalletTransaction,
-  PaginatedWalletTransactions,
-  PaymentTransaction,
-  PaginatedPaymentTransactions,
-} from "@/types/wallet";
+import { PaymentTransaction } from "@/types/wallet";
 import { endOfMonth, startOfMonth } from "date-fns";
+import { redirect } from "next/navigation";
+
+export async function handleUnauthorized() {
+  "use server";
+  redirect("/unauthorized");
+}
 
 const getAxiosConfig = async () => {
   const cookieStore = await cookies();
@@ -35,6 +35,10 @@ export async function getAllEmployees(
     );
     return response.data;
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     console.error("Failed to fetch employees:", error);
     return { data: [], total: 0, page: 1, limit };
   }
@@ -65,6 +69,10 @@ export async function getWalletTransactions(
     );
     return response.data;
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     console.error("Failed to fetch wallet transactions:", error);
     return { data: [], total: 0, page: 1, limit: 10 };
   }
@@ -94,6 +102,10 @@ export async function getPaymentTransactions(
     );
     return response.data;
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     console.error("Failed to fetch payment transactions:", error);
     throw error;
   }

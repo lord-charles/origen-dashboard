@@ -1,8 +1,9 @@
 "use server";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Advance, PaginatedAdvances } from "@/types/advance";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export interface GetAdvancesParams {
   page?: number;
@@ -13,6 +14,11 @@ export interface GetAdvancesParams {
   startDate?: string;
   endDate?: string;
   employeeId?: string;
+}
+
+export async function handleUnauthorized() {
+  "use server";
+  redirect("/unauthorized");
 }
 
 const getAxiosConfig = async () => {
@@ -44,6 +50,10 @@ export async function getAdvances({
     );
     return data;
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     console.error("Failed to fetch advances:", error);
     return { data: [], total: 0, page: 1, limit: 10 };
   }
@@ -58,6 +68,10 @@ export async function getAdvanceById(id: string): Promise<Advance | null> {
     );
     return data;
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     console.error("Failed to fetch advance details:", error);
     throw error;
   }
@@ -93,6 +107,10 @@ export async function updateAdvance(
     );
     return data;
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     console.error("Failed to update advance:", error);
     throw error;
   }
@@ -112,6 +130,10 @@ export async function updateAdvanceStatus(
     );
     return data;
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
     console.error("Failed to update advance status:", error);
     throw error;
   }
