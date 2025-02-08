@@ -7,7 +7,10 @@ import { PaymentTransaction, WalletTransaction } from "@/types/wallet";
 import WalletTable from "./wallet-table/wallet";
 import { useState, useEffect } from "react";
 import { startOfMonth, endOfMonth } from "date-fns";
-import { getPaymentTransactions, getWalletTransactions } from "@/services/wallet-service";
+import {
+  getPaymentTransactions,
+  getWalletTransactions,
+} from "@/services/wallet-service";
 import { format } from "date-fns";
 import {
   Popover,
@@ -23,19 +26,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface WalletPageProps {
   transactions: WalletTransaction[];
-  mpesaPayments:PaymentTransaction[]
-
+  mpesaPayments: PaymentTransaction[];
 }
 
 export default function WalletPage({
   transactions: initialTransactions,
-  mpesaPayments
-  
+  mpesaPayments,
 }: WalletPageProps) {
   const [transactions, setTransactions] =
     useState<WalletTransaction[]>(initialTransactions);
-    const [mpesa, setMpesa] =
-    useState<PaymentTransaction[]>(mpesaPayments);
+  const [mpesa, setMpesa] = useState<PaymentTransaction[]>(mpesaPayments);
   const [isLoading, setIsLoading] = useState(false);
   const [date, setDate] = useState<{
     from: Date | undefined;
@@ -52,20 +52,18 @@ export default function WalletPage({
         try {
           const startDate = date.from.toISOString();
           const endDate = date.to.toISOString();
-            const [
-              newTransactions, mpesaPayments
-              ] = await Promise.all([
-                getWalletTransactions({
-                  startDate,
-                  endDate,
-                }),
-                getPaymentTransactions({
-                  startDate,
-                  endDate,
-                }),
-              ]);
+          const [newTransactions, mpesaPayments] = await Promise.all([
+            getWalletTransactions({
+              startDate,
+              endDate,
+            }),
+            getPaymentTransactions({
+              startDate,
+              endDate,
+            }),
+          ]);
 
-          setMpesa(mpesaPayments)
+          setMpesa(mpesaPayments);
           setTransactions(newTransactions.data);
         } catch (error) {
           console.error("Failed to fetch transactions:", error);
@@ -137,21 +135,21 @@ export default function WalletPage({
         <TransactionStatCards transactions={transactions} />
         <div className="relative mt-8">
           {isLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-gray-900/50">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-gray-900/50">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
           )}
-          <Tabs defaultValue="wallet" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="wallet">Wallet Transactions</TabsTrigger>
-            <TabsTrigger value="mpesa">M-Pesa Transactions</TabsTrigger>
-          </TabsList>
-          <TabsContent value="wallet" className="mt-4">
-            <WalletTable transactions={transactions} />
-          </TabsContent>
-          <TabsContent value="mpesa" className="mt-4">
-            <MpesaTable transactions={mpesa} />
-          </TabsContent>
+          <Tabs defaultValue="wallet">
+            <TabsList className=" mb-4">
+              <TabsTrigger value="wallet">Wallet Transactions</TabsTrigger>
+              <TabsTrigger value="mpesa">M-Pesa Transactions</TabsTrigger>
+            </TabsList>
+            <TabsContent value="wallet" className="mt-4">
+              <WalletTable transactions={transactions} />
+            </TabsContent>
+            <TabsContent value="mpesa" className="mt-4">
+              <MpesaTable transactions={mpesa} />
+            </TabsContent>
           </Tabs>
         </div>
       </div>

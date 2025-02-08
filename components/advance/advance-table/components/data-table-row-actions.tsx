@@ -74,10 +74,10 @@ export function DataTableRowActions<TData>({
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-red-600">
+          {/* <DropdownMenuItem className="text-red-600">
             Delete
             <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
 

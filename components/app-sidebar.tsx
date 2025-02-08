@@ -72,14 +72,14 @@ const data = {
         {
           title: "Innova Wallet",
           url: "/wallet",
-        }
+        },
       ],
     },
-    {
-      title: "Reports",
-      url: "/reports",
-      icon: "BarChart2",
-    },
+    // {
+    //   title: "Reports",
+    //   url: "/reports",
+    //   icon: "BarChart2",
+    // },
     {
       title: "Settings",
       url: "/settings",

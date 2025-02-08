@@ -13,18 +13,66 @@ import {
   DollarSignIcon,
   UserIcon,
   AlertTriangleIcon,
+  Loader2,
 } from "lucide-react";
 import { DatePickerWithRange } from "../date-range-picker";
 import { PaginatedAdvances } from "@/types/advance";
 import AdvanceTable from "./advance-table/advance";
 import { calculateAdvanceStats, formatCurrency } from "@/lib/advance-stats";
+import { useEffect, useState } from "react";
+import { endOfMonth, format, startOfMonth } from "date-fns";
+import { getAdvances } from "@/services/advance-service";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
+import { Calendar } from "../ui/calendar";
 
 interface AdvanceModuleProps {
   initialData: PaginatedAdvances;
 }
 
 const AdvanceModule = ({ initialData }: AdvanceModuleProps) => {
-  const stats = calculateAdvanceStats(initialData.data, initialData.total);
+  const [advances, setAdvances] = useState(initialData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [date, setDate] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({
+    from: startOfMonth(new Date()),
+    to: endOfMonth(new Date()),
+  });
+
+  const stats = calculateAdvanceStats(advances.data, advances.total);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      if (date.from && date.to) {
+        setIsLoading(true);
+        try {
+          const startDate = date.from.toISOString();
+          const endDate = date.to.toISOString();
+          const response = await getAdvances({
+            startDate,
+            endDate,
+            page: 1,
+            limit: 1000,
+          });
+          setAdvances(response);
+        } catch (error) {
+          console.error("Failed to fetch transactions:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchTransactions();
+  }, [date]);
+
   return (
     <div className="min-h-screen">
       <div className=" px-4 py-8">
@@ -32,7 +80,54 @@ const AdvanceModule = ({ initialData }: AdvanceModuleProps) => {
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
             Salary Advance
           </h1>
-          <DatePickerWithRange />
+          {/* <DatePickerWithRange /> */}
+          <div className="flex items-center space-x-4 py-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  className={cn(
+                    "w-[260px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                  )}
+                  {date?.from ? (
+                    date.to ? (
+                      <>
+                        {format(date.from, "LLL dd, y")} -{" "}
+                        {format(date.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(date.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={date?.from}
+                  selected={date}
+                  onSelect={(range) => {
+                    if (range) {
+                      setDate({ from: range.from, to: range.to });
+                    }
+                  }}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
           <Card className="bg-white/50 backdrop-blur-lg dark:bg-gray-800/50">
@@ -125,7 +220,12 @@ const AdvanceModule = ({ initialData }: AdvanceModuleProps) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <AdvanceTable advances={initialData.data} />
+                {isLoading && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-gray-900/50">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                )}
+                <AdvanceTable advances={advances.data} />
               </div>
             </CardContent>
           </Card>

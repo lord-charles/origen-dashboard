@@ -27,10 +27,13 @@ export function calculateAdvanceStats(
   );
 
   // Calculate total amount disbursed
-  const totalAmountDisbursed = advances.reduce(
-    (sum, advance) => sum + advance.amount,
-    0
-  );
+  const totalAmountDisbursed = advances.reduce((sum, advance) => {
+    // Only include advances that are disbursed or repaying
+    if (advance.status === "disbursed" || advance.status === "repaying") {
+      return sum + advance.amount;
+    }
+    return sum;
+  }, 0);
 
   // Calculate pending approvals
   const pendingAdvances = advances.filter(

@@ -25,16 +25,15 @@ interface TransactionTypeData {
 }
 
 const defaultTransactionTypes: TransactionTypeData[] = [
-
-  {
-    type: "receive_from_mpesa",
-    label: "M-Pesa to Wallet",
-    icon: ArrowDownToLine,
-    count: 0,
-    amount: 0,
-    color: "from-green-500 to-green-600",
-    trend: 0,
-  },
+  // {
+  //   type: "receive_from_mpesa",
+  //   label: "M-Pesa to Wallet",
+  //   icon: ArrowDownToLine,
+  //   count: 0,
+  //   amount: 0,
+  //   color: "from-green-500 to-green-600",
+  //   trend: 0,
+  // },
   {
     type: "transfer_to_wallet",
     label: "Wallet to Wallet",
@@ -46,7 +45,7 @@ const defaultTransactionTypes: TransactionTypeData[] = [
   },
   {
     type: "receive_from_advance",
-    label: "Receive from Advance",
+    label: "Receive from Advance(Advance to M-Pesa)",
     icon: PiggyBank,
     count: 0,
     amount: 0,
@@ -55,23 +54,22 @@ const defaultTransactionTypes: TransactionTypeData[] = [
   },
   {
     type: "withdrawal",
-    label: "Withdrawal",
+    label: "Withdrawal(Wallet to M-Pesa)",
     icon: Wallet,
     count: 0,
     amount: 0,
     color: "from-orange-500 to-orange-600",
     trend: 0,
   },
-  {
-    type: "Withdrawal",
-    label: "Coming soon!",
-    icon: ArrowUpFromLine,
-    count: 0,
-    amount: 0,
-    color: "from-red-500 to-red-600",
-    trend: 0,
-  },
-  
+  // {
+  //   type: "Withdrawal",
+  //   label: "Coming soon!",
+  //   icon: ArrowUpFromLine,
+  //   count: 0,
+  //   amount: 0,
+  //   color: "from-red-500 to-red-600",
+  //   trend: 0,
+  // },
 ];
 
 const processTransactions = (
@@ -119,7 +117,7 @@ export default function TransactionStatCards({
   const processedTransactions = processTransactions(transactions);
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {processedTransactions.map((transaction) => (
         <Card
           key={transaction.type}

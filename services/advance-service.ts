@@ -1,9 +1,10 @@
 "use server";
 
 import axios, { AxiosError } from "axios";
-import { Advance, PaginatedAdvances } from "@/types/advance";
+import { Advance, AdvanceConfig, PaginatedAdvances } from "@/types/advance";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { endOfMonth, startOfMonth } from "date-fns";
 
 export interface GetAdvancesParams {
   page?: number;
@@ -35,11 +36,19 @@ const getAxiosConfig = async () => {
 export async function getAdvances({
   page = 1,
   limit = 1000,
+  startDate,
+  endDate,
 }: GetAdvancesParams = {}): Promise<PaginatedAdvances> {
   try {
+    const now = new Date();
+    const defaultEndDate = endOfMonth(now).toISOString();
+    const defaultStartDate = startOfMonth(now).toISOString();
+
     const queryParams = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
+      startDate: startDate || defaultStartDate,
+      endDate: endDate || defaultEndDate,
     });
 
     const config = await getAxiosConfig();
@@ -135,6 +144,24 @@ export async function updateAdvanceStatus(
     }
 
     console.error("Failed to update advance status:", error);
+    throw error;
+  }
+}
+
+export async function getAdvanceConfig(): Promise<AdvanceConfig> {
+  try {
+    const config = await getAxiosConfig();
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance/config`,
+      config
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
+    console.error("Failed to fetch advance configuration:", error);
     throw error;
   }
 }
