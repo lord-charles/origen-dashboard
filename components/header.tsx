@@ -15,9 +15,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 export function Header() {
   const { setTheme } = useTheme();
+  const router = useRouter();
   const { data: session } = useSession();
   const initials = session?.user
     ? `${session.user.firstName[0]}${session.user.lastName[0]}`.toUpperCase()
@@ -76,8 +78,8 @@ export function Header() {
                 {session?.user.email}
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/settings")}>Profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/settings")}>Settings</DropdownMenuItem>
 
             <DropdownMenuItem onClick={() => signOut()}>
               Log out
