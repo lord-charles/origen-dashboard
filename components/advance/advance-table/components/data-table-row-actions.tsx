@@ -35,11 +35,11 @@ export function DataTableRowActions<TData>({
     try {
       const result = await updateAdvanceStatus(advance._id, newStatus);
       if (result) {
-        toast({
+        (toast({
           title: "Success",
           description: "Advance status updated successfully",
-        });
-        router.refresh();
+        }),
+          window.location.reload())
       } else {
         toast({
           title: "Error",

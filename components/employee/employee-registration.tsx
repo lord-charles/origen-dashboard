@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { DatePicker } from "@/components/ui/date-picker";
 import { Header } from "../header";
 import * as z from "zod";
 import { useForm, Controller } from "react-hook-form";
@@ -294,9 +293,14 @@ export function RegisterEmployeeComponent() {
                         name="dateOfBirth"
                         control={control}
                         render={({ field }) => (
-                          <DatePicker
-                            date={field.value}
-                            setDate={field.onChange}
+                          <input
+                            type="date"
+                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            onChange={(e) => {
+                              const date = e.target.value ? new Date(e.target.value) : null;
+                              field.onChange(date);
+                            }}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         )}
                       />
@@ -406,9 +410,14 @@ export function RegisterEmployeeComponent() {
                         name="employmentStartDate"
                         control={control}
                         render={({ field }) => (
-                          <DatePicker
-                            date={field.value}
-                            setDate={field.onChange}
+                          <input
+                            type="date"
+                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            onChange={(e) => {
+                              const date = e.target.value ? new Date(e.target.value) : null;
+                              field.onChange(date);
+                            }}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         )}
                       />
@@ -424,9 +433,14 @@ export function RegisterEmployeeComponent() {
                         name="employmentEndDate"
                         control={control}
                         render={({ field }) => (
-                          <DatePicker
-                            date={field.value}
-                            setDate={field.onChange}
+                          <input
+                            type="date"
+                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            onChange={(e) => {
+                              const date = e.target.value ? new Date(e.target.value) : null;
+                              field.onChange(date);
+                            }}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         )}
                       />
