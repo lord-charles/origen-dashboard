@@ -209,7 +209,6 @@ export async function getSystemLogs(
 ): Promise<SystemLog[]> {
   try {
     const config = await getAxiosConfig();
-
     // Default to current month if dates not provided
     const now = new Date();
     const defaultEndDate = endOfMonth(now).toISOString();
@@ -222,6 +221,8 @@ export async function getSystemLogs(
         params: {
           startDate: startDate || defaultStartDate,
           endDate: endDate || defaultEndDate,
+          page: 1,
+          limit: 2000,
         },
       }
     );

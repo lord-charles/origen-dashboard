@@ -21,8 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Loader2 } from "lucide-react";
-import MpesaTable from "./mpesa-table /mpesa";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MpesaTable from "./mpesa-table_/mpesa";
 
 interface WalletPageProps {
   transactions: WalletTransaction[];

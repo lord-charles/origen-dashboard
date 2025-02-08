@@ -3,7 +3,7 @@ export interface RecipientDetails {
 	recipientMpesaNumber?: string;
 }
 
-interface WalletUser {
+export interface WalletUser {
 	_id: string;
 	firstName: string;
 	lastName: string;

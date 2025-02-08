@@ -45,8 +45,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
     <DashboardProvider>
       <Header />
-      <div className="py-8">
-        <Card className="bg-card p-6 space-y-6">
+        <div className="p-6 space-y-6">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
             <p className="text-muted-foreground mt-2">
@@ -55,13 +54,12 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
           </div>
           <Separator />
           <div className="flex flex-col lg:flex-row lg:space-x-12">
-            <aside className="lg:w-1/6">
+            <aside className="lg:w-1/7">
               <SidebarNav items={sidebarNavItems} />
             </aside>
             <div className="flex-1 lg:max-w-7xl">{children}</div>
           </div>
-        </Card>
-      </div>
+        </div>
     </DashboardProvider>
   );
 }

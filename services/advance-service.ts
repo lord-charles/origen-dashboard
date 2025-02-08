@@ -165,3 +165,111 @@ export async function getAdvanceConfig(): Promise<AdvanceConfig> {
     throw error;
   }
 }
+
+export interface AddSuspensionPeriodParams {
+  startDate: string;
+  endDate: string;
+  reason: string;
+  isActive: boolean;
+}
+
+export async function addSuspensionPeriod(
+  params: AddSuspensionPeriodParams
+): Promise<any> {
+  try {
+ 
+    const config = await getAxiosConfig();
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/suspension-periods`,
+      params,
+      config
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+    console.error("Failed to add suspension period:", error);
+    throw error;
+  }
+}
+
+export async function updateSuspensionPeriod({
+  _id,
+  startDate,
+  endDate,
+  reason,
+  isActive,
+}: {
+  _id: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  isActive: boolean;
+}) {
+  try {
+
+    const config = await getAxiosConfig();
+    const { data } = await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/suspension-periods/${_id}`, 
+      {
+        startDate,
+        endDate,
+        reason,
+        isActive,
+        id: _id,
+      },
+      config
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+    throw error;
+  }
+}
+
+export async function deleteSuspensionPeriod(_id: string) {
+  try {
+
+    const config = await getAxiosConfig();
+    const { data } = await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/suspension-periods/${_id}`,
+      config
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+    throw error;
+  }
+}
+
+interface UpdateAdvanceConfigParams {
+  advanceDefaultInterestRate?: number;
+  advanceMinAmount?: number;
+  advanceMaxAmount?: number;
+  advanceMinRepaymentPeriod?: number;
+  advanceMaxRepaymentPeriod?: number;
+  maxAdvancePercentage?: number;
+  maxActiveAdvances?: number;
+}
+
+export async function updateAdvanceConfig(params: UpdateAdvanceConfigParams) {
+  try {
+    const config = await getAxiosConfig();
+    const { data } = await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/advance-config`,
+      params,
+      config
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+    throw error;
+  }
+}

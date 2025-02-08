@@ -1,9 +1,12 @@
 import AdminNotificationConfig from "./admin-notification-config";
+import { getNotificationConfig } from "@/services/notification-service";
 
-export default function SettingsAdvancePage() {
+export default async function NotificationsPage() {
+  const initialConfig = await getNotificationConfig();
+
   return (
     <div>
-      <AdminNotificationConfig />
+      <AdminNotificationConfig initialConfig={initialConfig} />
     </div>
   );
 }

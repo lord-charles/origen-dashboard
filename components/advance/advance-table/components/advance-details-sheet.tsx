@@ -97,6 +97,15 @@ export function AdvanceDetailsSheet({
     }
   };
 
+  const statusDisplayMap = {
+    pending: "Pending",
+    approved: "Approve",
+    declined: "Decline",
+    disbursed: "Disburse",
+    repaying: "Repaying",
+    repaid: "Repaid",
+  } as const;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-[600px] overflow-y-auto">
@@ -130,11 +139,11 @@ export function AdvanceDetailsSheet({
                       "approved",
                       "declined",
                       "disbursed",
-                      "repaying",
+                      // "repaying",
                       "repaid",
                     ].map((status) => (
                       <SelectItem key={status} value={status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                        {statusDisplayMap[status as keyof typeof statusDisplayMap]}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -239,9 +248,7 @@ export function AdvanceDetailsSheet({
                       advance?.status
                     )} font-semibold`}
                   >
-                    {advance?.status === "disbursed"
-                      ? "Disburse"
-                      : advance?.status?.toUpperCase()}
+                    {advance?.status?.toUpperCase()}
                   </Badge>
                 </div>
               </div>
