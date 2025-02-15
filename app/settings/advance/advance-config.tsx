@@ -69,6 +69,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerFooter,
+  DrawerClose,
+} from "@/components/ui/drawer";
 
 const formSchema = z.object({
   advanceDefaultInterestRate: z.number().min(0).max(100),
@@ -447,79 +457,118 @@ export default function AdvanceConfigPage({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium">Suspension Periods</h3>
-                <Dialog>
-                  <DialogTrigger asChild>
+                <Drawer>
+                  <DrawerTrigger asChild>
                     <Button variant="outline">
                       <Plus className="mr-2 h-4 w-4" /> Add Period
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Add Suspension Period</DialogTitle>
-                      <DialogDescription>
-                        Set the date range and reason for the suspension period.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="date-range">Date Range</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              id="date-range"
-                              variant={"outline"}
-                              className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !dateRange.from && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {dateRange.from ? (
-                                dateRange.to ? (
-                                  <>
-                                    {format(dateRange.from, "LLL dd, y")} -{" "}
-                                    {format(dateRange.to, "LLL dd, y")}
-                                  </>
-                                ) : (
-                                  format(dateRange.from, "LLL dd, y")
-                                )
-                              ) : (
-                                <span>Pick a date range</span>
-                              )}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              initialFocus
-                              mode="range"
-                              defaultMonth={dateRange.from}
-                              selected={dateRange}
-                              onSelect={(range) => {
-                                setDateRange({
-                                  from: range?.from,
-                                  to: range?.to,
-                                });
-                              }}
-                              numberOfMonths={2}
+                  </DrawerTrigger>
+                  <DrawerContent>
+                    <div className="mx-auto w-full max-w-4xl">
+                      <DrawerHeader className="border-b">
+                        <DrawerTitle>Add Suspension Period</DrawerTitle>
+                        <DrawerDescription>
+                          Set the date range and reason for the suspension period.
+                        </DrawerDescription>
+                      </DrawerHeader>
+                      
+                      <div className="px-6 py-8">
+                        <div className="grid gap-8 max-w-2xl mx-auto">
+                          {/* Date Range Section */}
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="text-sm font-medium mb-2">Date Range</h3>
+                              <p className="text-sm text-muted-foreground mb-4">
+                                Select the start and end dates for the suspension period.
+                              </p>
+                            </div>
+                            <Popover modal={true}>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  id="date-range"
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal",
+                                    !dateRange.from && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {dateRange.from ? (
+                                    dateRange.to ? (
+                                      <>
+                                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                                        {format(dateRange.to, "LLL dd, y")}
+                                      </>
+                                    ) : (
+                                      format(dateRange.from, "LLL dd, y")
+                                    )
+                                  ) : (
+                                    <span>Pick a date range</span>
+                                  )}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent 
+                                className="w-auto p-0" 
+                                align="start"
+                                side="bottom"
+                              >
+                                <Calendar
+                                  initialFocus
+                                  mode="range"
+                                  defaultMonth={dateRange.from}
+                                  selected={dateRange}
+                                  onSelect={(range) => {
+                                    setDateRange({
+                                      from: range?.from,
+                                      to: range?.to,
+                                    });
+                                  }}
+                                  numberOfMonths={2}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+
+                          {/* Reason Section */}
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="text-sm font-medium mb-2">Reason</h3>
+                              <p className="text-sm text-muted-foreground mb-4">
+                                Provide a reason for the suspension period.
+                              </p>
+                            </div>
+                            <Input
+                              id="reason"
+                              placeholder="Enter reason for suspension"
+                              value={reason}
+                              onChange={(e) => setReason(e.target.value)}
+                              className="w-full"
                             />
-                          </PopoverContent>
-                        </Popover>
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="reason">Reason</Label>
-                        <Input
-                          id="reason"
-                          placeholder="Enter reason for suspension"
-                          value={reason}
-                          onChange={(e) => setReason(e.target.value)}
-                        />
-                      </div>
+
+                      <DrawerFooter className="border-t px-6 py-4">
+                        <div className="flex justify-end gap-4">
+                          <DrawerClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                          </DrawerClose>
+                          <Button 
+                            onClick={addNewSuspensionPeriod}
+                            disabled={loading || !dateRange.from || !dateRange.to || !reason}
+                          >
+                            {loading ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <Plus className="mr-2 h-4 w-4" />
+                            )}
+                            Add Period
+                          </Button>
+                        </div>
+                      </DrawerFooter>
                     </div>
-                    <DialogFooter>
-                      <Button onClick={addNewSuspensionPeriod}>Add Period</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                  </DrawerContent>
+                </Drawer>
               </div>
               <Table>
                 <TableHeader>

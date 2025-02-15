@@ -32,6 +32,18 @@ import {
   SystemLog,
 } from "@/types/dashboard";
 import { PaginatedAdvances } from "@/types/advance";
+import { generateReport } from "@/services/advance-service";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
@@ -52,17 +64,82 @@ const DashboardComponent = ({
   recentAdvances: PaginatedAdvances;
   systemLogs: SystemLog[];
 }) => {
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+const {toast} = useToast()
+
+  const handleGenerateReport = async (format: 'csv' | 'excel') => {
+    try {
+      setIsGeneratingReport(true);
+      const blob = await generateReport(format);
+      
+      // Get filename from Content-Disposition header if available, or use default
+      const fileName = `advance_report.${format === 'excel' ? 'xlsx' : 'csv'}`;
+      
+      // Create download link with explicit type checking
+      if (blob instanceof Blob) {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }, 0);
+        
+        toast({
+          title: "Success",
+          description: `Report generated successfully in ${format.toUpperCase()} format`,
+        });
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (error) {
+      console.error('Report generation error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   return (
     <div className=" p-4 space-y-6  min-h-screen">
       <DashboardStatCards stats={stats} />
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
+       <div className="flex flex-row items-center justify-between">
+       <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="detailed">Detailed Stats</TabsTrigger>
           <TabsTrigger value="trends">Trends</TabsTrigger>
           <TabsTrigger value="recent">Recent Advances</TabsTrigger>
         </TabsList>
+          <div className="hidden md:block">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button disabled={isGeneratingReport} variant={"outline"}>
+                  <Download className="mr-2 h-4 w-4" />
+                  {isGeneratingReport ? "Generating..." : "Generate Report"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleGenerateReport('excel')}>
+                  Excel Format
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleGenerateReport('csv')}>
+                  CSV Format
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="h-[400px]">
@@ -145,5 +222,4 @@ const DashboardComponent = ({
     </div>
   );
 };
-
 export default DashboardComponent;
