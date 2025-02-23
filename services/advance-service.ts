@@ -1,7 +1,12 @@
 "use server";
 
 import axios, { AxiosError } from "axios";
-import { Advance, AdvanceConfig, PaginatedAdvances } from "@/types/advance";
+import {
+  Advance,
+  AdvanceConfig,
+  Balance,
+  PaginatedAdvances,
+} from "@/types/advance";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { endOfMonth, startOfMonth } from "date-fns";
@@ -177,7 +182,6 @@ export async function addSuspensionPeriod(
   params: AddSuspensionPeriodParams
 ): Promise<any> {
   try {
- 
     const config = await getAxiosConfig();
     const { data } = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/suspension-periods`,
@@ -208,10 +212,9 @@ export async function updateSuspensionPeriod({
   isActive: boolean;
 }) {
   try {
-
     const config = await getAxiosConfig();
     const { data } = await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/suspension-periods/${_id}`, 
+      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/suspension-periods/${_id}`,
       {
         startDate,
         endDate,
@@ -232,7 +235,6 @@ export async function updateSuspensionPeriod({
 
 export async function deleteSuspensionPeriod(_id: string) {
   try {
-
     const config = await getAxiosConfig();
     const { data } = await axios.delete(
       `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/suspension-periods/${_id}`,
@@ -267,7 +269,6 @@ export async function updateAdvanceConfig(params: UpdateAdvanceConfigParams) {
     );
     return data;
   } catch (error) {
-
     if (error instanceof AxiosError && error.response?.status === 401) {
       await handleUnauthorized();
     }
@@ -275,21 +276,39 @@ export async function updateAdvanceConfig(params: UpdateAdvanceConfigParams) {
   }
 }
 
-export async function generateReport(format: 'csv' | 'excel'): Promise<Blob> {
+export async function getBalance(): Promise<Balance> {
+  try {
+    const config = await getAxiosConfig();
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/payment/balance/current`,
+      config
+    );
+    return data.data;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+    console.error("Failed to fetch balance:", error);
+    throw error;
+  }
+}
+
+export async function generateReport(format: "csv" | "excel"): Promise<Blob> {
   try {
     const config = await getAxiosConfig();
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/reports/generate?format=${format}`,
       {
         ...config,
-        responseType: 'arraybuffer',
+        responseType: "arraybuffer",
       }
     );
-    
-    const mimeType = format === 'excel' 
-      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      : 'text/csv';
-    
+
+    const mimeType =
+      format === "excel"
+        ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        : "text/csv";
+
     return new Blob([response.data], { type: mimeType });
   } catch (error) {
     if (error instanceof AxiosError && error.response?.status === 401) {

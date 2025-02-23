@@ -85,3 +85,31 @@ export interface AdvanceConfig {
   updatedAt: string;
   suspensionPeriods: SuspensionPeriod[];
 }
+
+export interface Balance {
+  working: {
+    balance: number;
+    currency: string;
+    lastUpdated: string;
+  };
+  utility: {
+    balance: number;
+    currency: string;
+    lastUpdated: string;
+  };
+  chargespaid: {
+    balance: number;
+    currency: string;
+    lastUpdated: string;
+  };
+  merchant: {
+    balance: number;
+    currency: string;
+    lastUpdated: string;
+  };
+  organizationsettlement: {
+    balance: number;
+    currency: string;
+    lastUpdated: string;
+  };
+}

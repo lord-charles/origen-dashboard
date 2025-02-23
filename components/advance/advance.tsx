@@ -14,9 +14,16 @@ import {
   UserIcon,
   AlertTriangleIcon,
   Loader2,
+  TrendingUp,
+  CreditCard,
 } from "lucide-react";
-import { DatePickerWithRange } from "../date-range-picker";
-import { PaginatedAdvances } from "@/types/advance";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Balance, PaginatedAdvances } from "@/types/advance";
 import AdvanceTable from "./advance-table/advance";
 import { calculateAdvanceStats, formatCurrency } from "@/lib/advance-stats";
 import { useEffect, useState } from "react";
@@ -30,12 +37,15 @@ import {
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Calendar } from "../ui/calendar";
+import { Skeleton } from "../ui/skeleton";
+import { Separator } from "../ui/separator";
 
 interface AdvanceModuleProps {
   initialData: PaginatedAdvances;
+  balanceData: Balance;
 }
 
-const AdvanceModule = ({ initialData }: AdvanceModuleProps) => {
+const AdvanceModule = ({ initialData, balanceData }: AdvanceModuleProps) => {
   const [advances, setAdvances] = useState(initialData);
   const [isLoading, setIsLoading] = useState(false);
   const [date, setDate] = useState<{
@@ -75,8 +85,8 @@ const AdvanceModule = ({ initialData }: AdvanceModuleProps) => {
 
   return (
     <div className="min-h-screen">
-      <div className=" px-4 py-8">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className=" p-4">
+        <div className="mb-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
             Salary Advance
           </h1>
@@ -207,27 +217,64 @@ const AdvanceModule = ({ initialData }: AdvanceModuleProps) => {
           </Card>
         </div>
         <div className="grid gap-2 pt-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <div>
-                <CardTitle className="text-lg font-medium">
-                  Recent Advances
-                </CardTitle>
-                <CardDescription className="text-sm font-medium">
-                  Here is a list of all Advances
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {isLoading && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-gray-900/50">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Card className="p-3">
+            <div className="space-y-0 pb-2">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <CardTitle className="text-2xl font-semibold flex items-center">
+                    <TrendingUp className="mr-2 h-6 w-6 text-primary" />
+                    Recent Advances
+                  </CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground">
+                    Here is a list of all Advances
+                  </CardDescription>
+                </div>
+                {balanceData ? (
+                  <div className="text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center space-x-2">
+                            <CreditCard className="h-5 w-5 text-primary" />
+                            <div>
+                              <div className="text-2xl font-bold">
+                                {balanceData.utility.balance.toLocaleString()}{" "}
+                                {balanceData.utility.currency}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Organization Utility Balance
+                              </div>
+                            </div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="left">
+                          <div className="text-xs">
+                            Last updated:{" "}
+                            {new Date(
+                              balanceData.utility.lastUpdated
+                            ).toLocaleString()}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Skeleton className="h-10 w-[200px]" />
+                    <Skeleton className="h-4 w-[150px]" />
                   </div>
                 )}
-                <AdvanceTable advances={advances.data} />
               </div>
-            </CardContent>
+            </div>
+            <div className="space-y-2">
+              {isLoading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-gray-900/50">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              )}
+              <Separator className="mb-4" />
+              <AdvanceTable advances={advances.data} />
+            </div>
           </Card>
         </div>
       </div>

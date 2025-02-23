@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import {
   Sheet,
@@ -21,11 +21,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { TextShimmer } from "@/components/ui/text-shimmer";
+import { getBalance } from "@/services/advance-service";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface AdvanceDetailsSheetProps {
   advance: Advance;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
   onStatusChange: (newStatus: string) => void;
 }
 
@@ -39,12 +43,96 @@ const formatCurrency = (amount: number) => {
 
 export function AdvanceDetailsSheet({
   advance,
-  open,
-  onOpenChange,
+  isOpen,
+  onClose,
   onStatusChange,
 }: AdvanceDetailsSheetProps) {
-  const [newStatus, setNewStatus] = useState<string | undefined>(undefined);
+  const [newStatus, setNewStatus] = useState<string>("");
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(true);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let timeoutId: any;
+
+    const checkBalance = async () => {
+      try {
+        setIsCheckingBalance(true);
+        setError(null);
+
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        const balanceData = await getBalance();
+        setBalance(balanceData.utility.balance);
+      } catch (err) {
+        setError("Failed to fetch balance. Please try again.");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not fetch utility balance",
+        });
+      } finally {
+        setIsCheckingBalance(false);
+      }
+    };
+
+    if (isOpen) {
+      checkBalance();
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isOpen, toast]);
+
+  const handleStatusChange = async () => {
+    const isValid = validateStatusTransition(advance.status, newStatus);
+    if (!isValid) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Status Transition",
+        description: `Cannot transition advance from ${advance.status} to ${newStatus}`,
+      });
+      return;
+    }
+    if (!balance) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Cannot update status: Balance information unavailable",
+      });
+      return;
+    }
+
+    if (newStatus === "approved" && advance.amount > balance) {
+      toast({
+        variant: "destructive",
+        title: "Insufficient Balance",
+        description:
+          "The requested amount exceeds the available utility balance",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await onStatusChange(newStatus);
+      toast({
+        title: "Success",
+        description: "Advance status updated successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update advance status",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -81,22 +169,6 @@ export function AdvanceDetailsSheet({
     return validTransitions[currentStatus].includes(newStatus);
   };
 
-  const handleStatusChange = () => {
-    if (newStatus && validateStatusTransition(advance.status, newStatus)) {
-      onStatusChange(newStatus);
-      toast({
-        title: "Status Updated",
-        description: `Advance status changed from ${advance.status} to ${newStatus}`,
-      });
-    } else {
-      toast({
-        title: "Invalid Status Transition",
-        description: `Cannot transition advance from ${advance.status} to ${newStatus}`,
-        variant: "destructive",
-      });
-    }
-  };
-
   const statusDisplayMap = {
     pending: "Pending",
     approved: "Approve",
@@ -107,7 +179,7 @@ export function AdvanceDetailsSheet({
   } as const;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="sm:max-w-[600px] overflow-y-auto">
         <SheetHeader className="mb-6">
           <SheetTitle className="text-2xl font-bold">
@@ -127,9 +199,54 @@ export function AdvanceDetailsSheet({
           {/* Status Change Section */}
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
             <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-4">Update Status</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Update Status</h3>
+
+                {isCheckingBalance ? (
+                  <TextShimmer
+                    className="font-mono text-sm text-muted-foreground"
+                    duration={1}
+                  >
+                    Checking Innova M-Pesa Utility Balance...
+                  </TextShimmer>
+                ) : balance !== null ? (
+                  <div className="text-right">
+                    <div className="font-mono text-sm text-muted-foreground">
+                      Available Balance
+                    </div>
+                    <div className="text-xl font-bold text-primary">
+                      KES {balance.toLocaleString()}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {error ? (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              ) : balance !== null &&
+                advance.amount > balance &&
+                (newStatus === "approved" || newStatus === "disbursed") ? (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle className="font-bold">
+                    Insufficient Balance
+                  </AlertTitle>
+                  <AlertDescription className="font-semibold">
+                    The requested amount (KES {advance.amount.toLocaleString()})
+                    exceeds the available balance
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+
               <div className="flex items-center space-x-4">
-                <Select onValueChange={setNewStatus}>
+                <Select
+                  onValueChange={setNewStatus}
+                  disabled={isCheckingBalance}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select new status" />
                   </SelectTrigger>
@@ -139,17 +256,38 @@ export function AdvanceDetailsSheet({
                       "approved",
                       "declined",
                       "disbursed",
-                      // "repaying",
                       "repaid",
                     ].map((status) => (
                       <SelectItem key={status} value={status}>
-                        {statusDisplayMap[status as keyof typeof statusDisplayMap]}
+                        {
+                          statusDisplayMap[
+                            status as keyof typeof statusDisplayMap
+                          ]
+                        }
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Button onClick={handleStatusChange} disabled={!newStatus}>
-                  Update Status
+                <Button
+                  onClick={handleStatusChange}
+                  disabled={
+                    !newStatus ||
+                    isCheckingBalance ||
+                    isLoading ||
+                    (newStatus === "approved" &&
+                      advance.amount > (balance || 0)) ||
+                    (newStatus === "disbursed" &&
+                      advance.amount > (balance || 0))
+                  }
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Status"
+                  )}
                 </Button>
               </div>
             </CardContent>

@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { getAdvances } from "@/services/advance-service";
+import { getAdvances, getBalance } from "@/services/advance-service";
 import DashboardProvider from "../dashboard-provider";
 import AdvanceModule from "@/components/advance/advance";
 import { Header } from "@/components/header";
@@ -18,19 +18,22 @@ export default async function AdvancePage() {
   }
 
   try {
-    const initialData = await getAdvances({});
+    const [initialData, balanceData] = await Promise.all([
+      getAdvances({}),
+      getBalance(),
+    ]);
 
     return (
       <DashboardProvider>
         <Header />
-        <AdvanceModule initialData={initialData} />
+        <AdvanceModule initialData={initialData} balanceData={balanceData} />
       </DashboardProvider>
     );
   } catch (error) {
-    console.error("Failed to fetch advances:", error);
+    console.error("Failed to fetch data:", error);
     return (
       <DashboardProvider>
-        <div>Error loading advances</div>
+        <div>Error loading data</div>
       </DashboardProvider>
     );
   }
