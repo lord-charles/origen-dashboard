@@ -33,6 +33,7 @@ export function DataTableToolbar<TData>({
         Email: original.email,
         "Phone Number": original.phoneNumber,
         "National ID": original.nationalId,
+        "Payroll Number": original.payrollNumber,
         Department: original.department,
         Position: original.position,
         "Employment Type": original.employmentType,
@@ -62,6 +63,7 @@ export function DataTableToolbar<TData>({
       "Email",
       "Phone Number",
       "National ID",
+      "Payroll Number",
       "Department",
       "Position",
       "Employment Type",
@@ -89,7 +91,7 @@ export function DataTableToolbar<TData>({
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
-          placeholder="Filter by names | email| phone | position | department | role..."
+          placeholder="Filter by names | email| phone | position | payroll number | role..."
           value={
             (table.getColumn("combinedName")?.getFilterValue() as string) ?? ""
           }

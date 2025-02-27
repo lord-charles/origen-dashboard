@@ -27,6 +27,7 @@ export interface User {
   lastName: string;
   email: string;
   phoneNumber: string;
+  payrollNumber?: string;
   nationalId: string;
   walletBalance: number;
   totalAdvances: number;

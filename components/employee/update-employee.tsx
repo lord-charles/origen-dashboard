@@ -40,6 +40,7 @@ const employeeSchema = z
       .string()
       .regex(/^254[17]\d{8}$/, "Phone number must start with 254"),
     nationalId: z.string().min(6, "Invalid national ID"),
+    payrollNumber: z.string().optional(),
     dateOfBirth: z.date().optional(),
     department: z.string().min(2, "Department is required"),
     position: z.string().min(2, "Position is required"),
@@ -122,6 +123,7 @@ export function UpdateEmployeeComponent({ employee }: any) {
       email: employee?.email || "",
       phoneNumber: employee?.phoneNumber || "",
       nationalId: employee?.nationalId || "",
+      payrollNumber: employee?.payrollNumber || "",
       dateOfBirth: employee?.dateOfBirth
         ? new Date(employee.dateOfBirth)
         : undefined,
@@ -608,6 +610,18 @@ export function UpdateEmployeeComponent({ employee }: any) {
                       />
                     </div>
                   )}
+                </div>
+
+                {/* Payroll Number */}
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="payrollNumber">
+                    Payroll Number (Optional)
+                  </Label>
+                  <Input
+                    id="payrollNumber"
+                    {...register("payrollNumber")}
+                    className="w-full"
+                  />
                 </div>
               </CardContent>
             </Card>

@@ -28,6 +28,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 interface NavUserProps {
   user: Session["user"];
@@ -35,6 +36,7 @@ interface NavUserProps {
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
   const initials = `${user?.firstName[0]}${user?.lastName[0]}`.toUpperCase();
 
   return (
@@ -88,7 +90,7 @@ export function NavUser({ user }: NavUserProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/settings")}>
                 <User className="mr-2 size-4" />
                 Profile
               </DropdownMenuItem>
@@ -96,7 +98,7 @@ export function NavUser({ user }: NavUserProps) {
                 <Building2 className="mr-2 size-4" />
                 {user.department}
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/settings")}>
                 <Settings className="mr-2 size-4" />
                 Settings
               </DropdownMenuItem>

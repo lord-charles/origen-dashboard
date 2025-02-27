@@ -40,6 +40,7 @@ const employeeSchema = z
       .regex(/^254[17]\d{8}$/, "Phone number must start with 254"),
     nationalId: z.string().min(6, "Invalid national ID"),
     dateOfBirth: z.date().optional(),
+    payrollNumber: z.string().optional(),
     department: z.string().min(2, "Department is required"),
     position: z.string().min(2, "Position is required"),
     employmentType: z.enum(["full-time", "part-time", "contract", "intern"]),
@@ -137,16 +138,13 @@ export function RegisterEmployeeComponent() {
         description: "Please wait while we process your request...",
       });
 
-      // Submit the data
       await registerEmployee(data as CreateEmployeeDto);
 
-      // Show success toast
       toast({
         title: "Registration Successful",
         description: "Employee has been registered successfully.",
       });
 
-      // Redirect after a short delay to ensure toast is visible
       setTimeout(() => {
         router.push("/employees");
       }, 4500);
@@ -295,9 +293,17 @@ export function RegisterEmployeeComponent() {
                         render={({ field }) => (
                           <input
                             type="date"
-                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            value={
+                              field.value
+                                ? new Date(field.value)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : ""
+                            }
                             onChange={(e) => {
-                              const date = e.target.value ? new Date(e.target.value) : null;
+                              const date = e.target.value
+                                ? new Date(e.target.value)
+                                : null;
                               field.onChange(date);
                             }}
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -412,9 +418,17 @@ export function RegisterEmployeeComponent() {
                         render={({ field }) => (
                           <input
                             type="date"
-                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            value={
+                              field.value
+                                ? new Date(field.value)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : ""
+                            }
                             onChange={(e) => {
-                              const date = e.target.value ? new Date(e.target.value) : null;
+                              const date = e.target.value
+                                ? new Date(e.target.value)
+                                : null;
                               field.onChange(date);
                             }}
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -435,9 +449,17 @@ export function RegisterEmployeeComponent() {
                         render={({ field }) => (
                           <input
                             type="date"
-                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            value={
+                              field.value
+                                ? new Date(field.value)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : ""
+                            }
                             onChange={(e) => {
-                              const date = e.target.value ? new Date(e.target.value) : null;
+                              const date = e.target.value
+                                ? new Date(e.target.value)
+                                : null;
                               field.onChange(date);
                             }}
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -609,6 +631,18 @@ export function RegisterEmployeeComponent() {
                       />
                     </div>
                   )}
+                </div>
+
+                {/* Payroll Number */}
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="payrollNumber">
+                    Payroll Number (Optional)
+                  </Label>
+                  <Input
+                    id="payrollNumber"
+                    {...register("payrollNumber")}
+                    className="w-full"
+                  />
                 </div>
               </CardContent>
             </Card>

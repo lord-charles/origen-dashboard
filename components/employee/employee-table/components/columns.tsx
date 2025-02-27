@@ -19,62 +19,50 @@ const customIncludesStringFilter = (
 
 export const columns: ColumnDef<User>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     id: "combinedName",
     header: "Name",
     accessorFn: (row) =>
       `${row.firstName || ""} ${row.lastName || ""} ${row.phoneNumber || ""} ${
         row.email || ""
-      } ${row.position || ""} ${row.department || ""}`,
+      } ${row.position || ""} ${row.department || ""} ${
+        row.payrollNumber || ""
+      }`,
     filterFn: customIncludesStringFilter,
-    enableHiding: true, // Allow this column to be hidden
-    enableSorting: false, // Prevent sorting if not needed
-    size: 0, // Set minimal size
-    cell: () => null, // This ensures nothing renders in the cell
+    enableHiding: true,
+    enableSorting: false,
+    size: 0,
+    cell: () => null,
   },
   {
     accessorKey: "employeeId",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Employee ID" />
     ),
-    cell: ({ row }) => <div>{row.getValue("employeeId")}</div>,
-    enableSorting: false,
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("employeeId") || "N/A"}</div>
+    ),
+    enableSorting: true,
     enableHiding: false,
   },
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+      <DataTableColumnHeader column={column} title="Employee Details" />
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex flex-col">
-          <span className="font-medium">
+        <div className="flex flex-col space-y-1">
+          <div className="font-medium">
             {row.original.firstName} {row.original.lastName}
-          </span>
-          <span className="text-sm text-muted-foreground">
-            {row.original.email}
-          </span>
+          </div>
+          <div className="flex flex-col text-sm text-muted-foreground">
+            <span>{row.original.email || "No email"}</span>
+            <span>
+              {row.original.payrollNumber
+                ? `Payroll No: ${row.original.payrollNumber}`
+                : "No Payroll Number Set"}
+            </span>
+          </div>
         </div>
       );
     },
@@ -85,12 +73,12 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "phoneNumber",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Phone Number" />
+      <DataTableColumnHeader column={column} title="Contact" />
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex flex-col">
-          <span>{row.original.phoneNumber}</span>
+        <div className="flex items-center">
+          <div className="font-medium">{row.original.phoneNumber || "N/A"}</div>
         </div>
       );
     },
@@ -101,15 +89,15 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "position",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Position" />
+      <DataTableColumnHeader column={column} title="Role" />
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex flex-col">
-          <span>{row.original.position}</span>
-          <span className="text-sm text-muted-foreground">
-            {row.original.department}
-          </span>
+        <div className="flex flex-col space-y-1">
+          <div className="font-medium">{row.original.position || "N/A"}</div>
+          <div className="text-sm text-muted-foreground">
+            {row.original.department || "No Department"}
+          </div>
         </div>
       );
     },
@@ -117,17 +105,17 @@ export const columns: ColumnDef<User>[] = [
       return value.includes(row.getValue(id));
     },
   },
-
   {
     accessorKey: "employmentType",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Employment Type" />
+      <DataTableColumnHeader column={column} title="Contract Type" />
     ),
     cell: ({ row }) => {
+      const type = row.getValue("employmentType") as string;
       return (
-        <div className="flex items-center">
-          {row.getValue("employmentType")}
-        </div>
+        <Badge variant="outline" className="capitalize">
+          {type || "Not Specified"}
+        </Badge>
       );
     },
     filterFn: (row, id, value) => {
@@ -140,12 +128,16 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="Base Salary" />
     ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("baseSalary"));
+      const amount = parseFloat(row.getValue("baseSalary") || "0");
       const formatted = new Intl.NumberFormat("en-KE", {
         style: "currency",
         currency: "KES",
       }).format(amount);
-      return <div className="font-medium">{formatted}</div>;
+      return (
+        <div className="font-medium tabular-nums">
+          {amount > 0 ? formatted : "Not Set"}
+        </div>
+      );
     },
   },
   {
@@ -154,9 +146,13 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="Start Date" />
     ),
     cell: ({ row }) => {
+      const dateStr = row.getValue("employmentStartDate") as string | undefined;
+
       return (
-        <div className="flex flex-col">
-          {format(new Date(row.getValue("employmentStartDate")), "PPP")}
+        <div className="font-medium">
+          {dateStr && dateStr.length > 0
+            ? format(new Date(dateStr), "PPP")
+            : "Not Set"}
         </div>
       );
     },
@@ -167,18 +163,20 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const status = (row.getValue("status") as string) || "unknown";
+      const statusStyles = {
+        active: "bg-green-100 text-green-800 border-green-500",
+        inactive: "bg-yellow-100 text-yellow-800 border-yellow-500",
+        suspended: "bg-red-100 text-red-800 border-red-500",
+        unknown: "bg-gray-100 text-gray-800 border-gray-500",
+      };
+
       return (
         <Badge
-          className={
-            status === "active"
-              ? "bg-green-100 text-green-800"
-              : status === "inactive"
-              ? "bg-yellow-100 text-yellow-800"
-              : status === "suspended"
-              ? "bg-red-100 text-red-800"
-              : "bg-gray-100 text-gray-800"
-          }
+          variant="outline"
+          className={`${
+            statusStyles[status as keyof typeof statusStyles]
+          } border capitalize`}
         >
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </Badge>
@@ -189,7 +187,7 @@ export const columns: ColumnDef<User>[] = [
     },
   },
   {
-    accessorKey: "actions",
+    id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ];

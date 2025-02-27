@@ -13,6 +13,7 @@ export interface CreateEmployeeDto {
   lastName: string;
   email: string;
   phoneNumber: string;
+  payrollNumber?: string;
   nationalId: string;
   status: UserStatus;
   dateOfBirth?: Date;
