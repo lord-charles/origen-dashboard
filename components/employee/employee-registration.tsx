@@ -316,6 +316,16 @@ export function RegisterEmployeeComponent() {
                         </p>
                       )}
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="payrollNumber">
+                        Payroll Number (Optional)
+                      </Label>
+                      <Input
+                        id="payrollNumber"
+                        {...register("payrollNumber")}
+                        className="w-full"
+                      />
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -631,18 +641,6 @@ export function RegisterEmployeeComponent() {
                       />
                     </div>
                   )}
-                </div>
-
-                {/* Payroll Number */}
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="payrollNumber">
-                    Payroll Number (Optional)
-                  </Label>
-                  <Input
-                    id="payrollNumber"
-                    {...register("payrollNumber")}
-                    className="w-full"
-                  />
                 </div>
               </CardContent>
             </Card>
