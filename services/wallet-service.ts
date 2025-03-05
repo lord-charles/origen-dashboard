@@ -45,7 +45,7 @@ export async function getAllEmployees(
   }
 }
 
-export async function getWalletTransactions(
+export async function  getWalletTransactions(
   params: {
     startDate?: string;
     endDate?: string;
@@ -84,7 +84,7 @@ export async function getPaymentTransactions(
     startDate?: string;
     endDate?: string;
   } = {}
-): Promise<PaymentTransaction[]> {
+) {
   try {
     const now = new Date();
     const defaultEndDate = endOfMonth(now).toISOString();

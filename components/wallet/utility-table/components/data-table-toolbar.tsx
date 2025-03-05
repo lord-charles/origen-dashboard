@@ -22,7 +22,6 @@ interface DataTableToolbarProps<TData> {
 const transactionTypes = [
   { label: "Recharge", value: "recharge" },
   { label: "Withdrawal", value: "b2c" },
-  { label: "Deduction", value: "withdrawal" },
 ];
 
 const transactionStatus = [
@@ -121,13 +120,13 @@ export function DataTableToolbar<TData>({
             options={transactionTypes}
           />
         )}
-        {table.getColumn("status") && (
+        {/* {table.getColumn("status") && (
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title="Status"
             options={transactionStatus}
           />
-        )}
+        )} */}
         {isFiltered && (
           <Button
             variant="ghost"

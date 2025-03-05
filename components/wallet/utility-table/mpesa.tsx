@@ -1,14 +1,14 @@
 "use client";
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
 import { DataTable } from "./components/data-table";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { columns } from "./components/columns";
-import { PaymentTransaction } from "@/types/wallet";
+import { UtilityTransaction } from "@/types/utility";
 
 export default function UtilityTable({
   transactions,
 }: {
-  transactions: PaymentTransaction[];
+  transactions: UtilityTransaction[];
 }) {
   return (
     <Card className="p-4">

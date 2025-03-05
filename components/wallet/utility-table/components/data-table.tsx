@@ -27,11 +27,12 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
-import { PaymentTransaction } from "@/types/wallet";
+import { UtilityTransaction } from "@/types/utility";
+
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: PaymentTransaction[];
+  data: UtilityTransaction[];
 }
 
 export function DataTable<TData, TValue>({
@@ -48,7 +49,7 @@ export function DataTable<TData, TValue>({
 
   const table = useReactTable({
     data,
-    columns: columns as ColumnDef<PaymentTransaction, any>[],
+    columns: columns as ColumnDef<UtilityTransaction, any>[],
     state: {
       sorting,
       columnVisibility,
