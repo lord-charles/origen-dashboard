@@ -65,7 +65,7 @@ export function AdvanceDetailsSheet({
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
         const balanceData = await getBalance();
-        setBalance(balanceData.utility.balance);
+        setBalance(balanceData.accountBalances.utility.balance - balanceData.pendingWithdrawals);
       } catch (err) {
         setError("Failed to fetch balance. Please try again.");
         toast({

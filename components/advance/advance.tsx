@@ -161,7 +161,7 @@ const AdvanceModule = ({ initialData, balanceData }: AdvanceModuleProps) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatCurrency(stats.totalAmountDisbursed)}
+                {formatCurrency(stats?.totalAmountDisbursed)}
               </div>
               <p className="text-xs text-muted-foreground">
                 Total disbursed amount
@@ -235,14 +235,34 @@ const AdvanceModule = ({ initialData, balanceData }: AdvanceModuleProps) => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="flex items-center space-x-2">
-                            <CreditCard className="h-5 w-5 text-primary" />
+                            <CreditCard className="h-10 w-10 text-primary" />
                             <div>
                               <div className="text-2xl font-bold">
-                                {balanceData.utility.balance.toLocaleString()}{" "}
-                                {balanceData.utility.currency}
+                                {balanceData?.accountBalances?.utility?.balance?.toLocaleString()}{" "}
+                                {balanceData?.accountBalances?.utility?.currency}
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 Organization Utility Balance
+                              </div>
+                            </div>
+                            <Separator orientation="vertical" className="h-10"/>
+                            <div>
+                              <div className="text-2xl font-bold">
+                                {balanceData?.pendingWithdrawals?.toLocaleString()}{" "}
+                                {balanceData?.accountBalances?.utility?.currency}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Pending Withdrawals
+                              </div>
+                            </div>
+                            <Separator orientation="vertical" className="h-10"/>
+                            <div>
+                              <div className="text-2xl font-bold">
+                                {(balanceData?.accountBalances?.utility?.balance - balanceData?.pendingWithdrawals)?.toLocaleString()}{" "}
+                                {balanceData?.accountBalances?.utility?.currency}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Available For Disbursal
                               </div>
                             </div>
                           </div>
@@ -251,7 +271,7 @@ const AdvanceModule = ({ initialData, balanceData }: AdvanceModuleProps) => {
                           <div className="text-xs">
                             Last updated:{" "}
                             {new Date(
-                              balanceData.utility.lastUpdated
+                              balanceData?.accountBalances?.utility?.lastUpdated
                             ).toLocaleString()}
                           </div>
                         </TooltipContent>

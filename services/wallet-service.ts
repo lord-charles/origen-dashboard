@@ -4,6 +4,7 @@ import axios, { AxiosError } from "axios";
 import { PaginatedUsers } from "@/types/user";
 import { cookies } from "next/headers";
 import { PaymentTransaction } from "@/types/wallet";
+import { UtilityTransactionResponse } from "@/types/utility";
 import { endOfMonth, startOfMonth } from "date-fns";
 import { redirect } from "next/navigation";
 
@@ -108,5 +109,38 @@ export async function getPaymentTransactions(
 
     console.error("Failed to fetch payment transactions:", error);
     throw error;
+  }
+}
+
+export async function getUtilityTransactions(
+  params: {
+    startDate?: string;
+    endDate?: string;
+  } = {}
+): Promise<UtilityTransactionResponse> {
+  try {
+    const now = new Date();
+    const defaultEndDate = endOfMonth(now).toISOString();
+    const defaultStartDate = startOfMonth(now).toISOString();
+
+    const config = await getAxiosConfig();
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/mpesa-audit`,
+      {
+        ...config,
+        params: {
+          startDate: params.startDate || defaultStartDate,
+          endDate: params.endDate || defaultEndDate,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
+    console.error("Failed to fetch utility transactions:", error);
+    return { data: { transactions: [], pagination: { total: 0, page: 1, limit: 10 } } };
   }
 }

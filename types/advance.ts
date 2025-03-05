@@ -87,12 +87,13 @@ export interface AdvanceConfig {
 }
 
 export interface Balance {
-  working: {
-    balance: number;
-    currency: string;
-    lastUpdated: string;
-  };
-  utility: {
+  accountBalances: {
+    working: {
+      balance: number;
+      currency: string;
+      lastUpdated: string;
+    };
+    utility: {
     balance: number;
     currency: string;
     lastUpdated: string;
@@ -112,4 +113,7 @@ export interface Balance {
     currency: string;
     lastUpdated: string;
   };
+}
+pendingWithdrawals: number;
+
 }

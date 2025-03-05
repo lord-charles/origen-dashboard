@@ -4,12 +4,14 @@ import { Header } from "../header";
 import TransactionStatCards from "@/components/wallet/transaction-stat-cards";
 import DashboardProvider from "@/app/dashboard-provider";
 import { PaymentTransaction, WalletTransaction } from "@/types/wallet";
+import { UtilityTransaction } from "@/types/utility";
 import WalletTable from "./wallet-table/wallet";
 import { useState, useEffect } from "react";
 import { startOfMonth, endOfMonth } from "date-fns";
 import {
   getPaymentTransactions,
   getWalletTransactions,
+  getUtilityTransactions,
 } from "@/services/wallet-service";
 import { format } from "date-fns";
 import {
@@ -23,19 +25,22 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MpesaTable from "./mpesa-table_/mpesa";
+import UtilityTable from "./utility-table/mpesa";
 
 interface WalletPageProps {
   transactions: WalletTransaction[];
   mpesaPayments: PaymentTransaction[];
+  utilityTransactions: UtilityTransaction[];
 }
 
 export default function WalletPage({
   transactions: initialTransactions,
   mpesaPayments,
+  utilityTransactions: initialUtilityTransactions,
 }: WalletPageProps) {
-  const [transactions, setTransactions] =
-    useState<WalletTransaction[]>(initialTransactions);
+  const [transactions, setTransactions] = useState<WalletTransaction[]>(initialTransactions);
   const [mpesa, setMpesa] = useState<PaymentTransaction[]>(mpesaPayments);
+  const [utility, setUtility] = useState<UtilityTransaction[]>(initialUtilityTransactions);
   const [isLoading, setIsLoading] = useState(false);
   const [date, setDate] = useState<{
     from: Date | undefined;
@@ -52,7 +57,7 @@ export default function WalletPage({
         try {
           const startDate = date.from.toISOString();
           const endDate = date.to.toISOString();
-          const [newTransactions, mpesaPayments] = await Promise.all([
+          const [newTransactions, mpesaPayments, utilityTransactions] = await Promise.all([
             getWalletTransactions({
               startDate,
               endDate,
@@ -61,10 +66,15 @@ export default function WalletPage({
               startDate,
               endDate,
             }),
+            getUtilityTransactions({
+              startDate,
+              endDate,
+            }),
           ]);
 
           setMpesa(mpesaPayments);
           setTransactions(newTransactions.data);
+          setUtility(utilityTransactions.data.transactions);
         } catch (error) {
           console.error("Failed to fetch transactions:", error);
         } finally {
@@ -143,12 +153,17 @@ export default function WalletPage({
             <TabsList className=" mb-4">
               <TabsTrigger value="wallet">Wallet Transactions</TabsTrigger>
               <TabsTrigger value="mpesa">M-Pesa Transactions</TabsTrigger>
+              <TabsTrigger value="utility">Utility Account Audit</TabsTrigger>
+
             </TabsList>
             <TabsContent value="wallet" className="mt-4">
               <WalletTable transactions={transactions} />
             </TabsContent>
             <TabsContent value="mpesa" className="mt-4">
               <MpesaTable transactions={mpesa} />
+            </TabsContent>
+            <TabsContent value="utility" className="mt-4">
+              <UtilityTable transactions={utility} />
             </TabsContent>
           </Tabs>
         </div>
