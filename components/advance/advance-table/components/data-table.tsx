@@ -14,6 +14,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  Row,
 } from "@tanstack/react-table";
 
 import {
@@ -28,10 +29,11 @@ import {
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { User } from "@/types/user";
+import { Advance } from "@/types/advance";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: User[];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
@@ -39,43 +41,59 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(
+    {}
+  );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = React.useState("");
+
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [selectedRows, setSelectedRows] = React.useState<Row<TData>[]>([]);
 
   const table = useReactTable({
     data,
-    columns: columns as ColumnDef<User, unknown>[],
+    columns: columns as ColumnDef<TData, unknown>[],
     state: {
       sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
+      globalFilter,
+      pagination: {
+        pageIndex: 0,
+        pageSize: 5,
+      },
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    initialState: {
-      pagination: {
-        pageSize: 5,
-      },
-    },
   });
+
+  React.useEffect(() => {
+    const rows = table.getSelectedRowModel().rows;
+    setSelectedRows(rows);
+  }, [table]);
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar 
+        table={table} 
+        hasSelection={Object.keys(rowSelection).length > 0}
+        setIsDialogOpen={setIsDialogOpen}
+        selectedAdvances={selectedRows as Row<Advance>[]}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

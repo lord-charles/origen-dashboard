@@ -14,6 +14,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  Row,
 } from "@tanstack/react-table";
 
 import {
@@ -28,6 +29,7 @@ import {
 import { DataTablePagination } from "./components/data-table-pagination";
 import { DataTableToolbar } from "./components/data-table-toolbar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Advance } from "@/types/advance";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -41,9 +43,17 @@ export function DataTable<TData, TValue>({
   isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(
+    {}
+  );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = React.useState("");
+
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [selectedRows, setSelectedRows] = React.useState<Row<TData>[]>([]);
 
   const table = useReactTable({
     data,
@@ -66,6 +76,11 @@ export function DataTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
+
+  React.useEffect(() => {
+    const rows = table.getSelectedRowModel().rows;
+    setSelectedRows(rows);
+  }, [table]);
 
   if (isLoading) {
     return (
@@ -102,7 +117,12 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar
+        table={table}
+        hasSelection={Object.keys(rowSelection).length > 0}
+        setIsDialogOpen={setIsDialogOpen}
+        selectedAdvances={selectedRows as Row<Advance>[]}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
