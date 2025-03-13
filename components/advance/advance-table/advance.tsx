@@ -28,6 +28,19 @@ import { DataTablePagination } from "./components/data-table-pagination";
 import { DataTableToolbar } from "./components/data-table-toolbar";
 import { columns } from "./components/columns";
 import { Advance } from "@/types/advance";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { batchMarkAdvancesAsRepaid } from "@/services/advance-service";
+import { useToast } from "@/hooks/use-toast";
+import { BulkUpdateDialog } from "../bulk-update-dialog";
 
 interface DataTableProps {
   advances: Advance[];
@@ -38,6 +51,9 @@ export default function AdvanceTable({ advances }: DataTableProps) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
 
   const table = useReactTable({
     data: advances,
@@ -61,9 +77,37 @@ export default function AdvanceTable({ advances }: DataTableProps) {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  const selectedAdvances = table.getSelectedRowModel().rows;
+  const hasSelection = selectedAdvances.length > 0;
+
+  const handleBatchRepayment = async () => {
+    try {
+      setIsProcessing(true);
+      const selectedIds = selectedAdvances.map((row) => row.original._id);
+      const result = await batchMarkAdvancesAsRepaid(selectedIds);
+      console.log(result);
+
+      setRowSelection({});
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to process advances. Please try again.",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+    
+        <DataTableToolbar table={table} 
+        hasSelection={hasSelection}
+        setIsDialogOpen={setIsDialogOpen}
+        selectedAdvances={selectedAdvances}
+        />
+       
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -115,6 +159,12 @@ export default function AdvanceTable({ advances }: DataTableProps) {
         </Table>
       </div>
       <DataTablePagination table={table} />
+
+     <BulkUpdateDialog
+      open={isDialogOpen}
+      onOpenChange={setIsDialogOpen}
+      selectedAdvances={selectedAdvances}
+     />
     </div>
   );
 }

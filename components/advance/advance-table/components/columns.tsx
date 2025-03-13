@@ -7,35 +7,43 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/types/user";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const customIncludesStringFilter = (
   row: Row<Advance>,
   columnId: string,
   filterValue: string
-) => {
-  const value = row.getValue(columnId) as string;
-  return value?.toLowerCase().includes((filterValue as string).toLowerCase());
+): boolean => {
+  const value = row.getValue(columnId);
+  return value ? value.toString().toLowerCase().includes(filterValue.toLowerCase()) : false;
 };
 
 export const columns: ColumnDef<Advance>[] = [
   {
-    accessorKey: "employee",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Employee" />
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+        className="translate-y-[2px]"
+      />
     ),
-    cell: ({ row }) => {
-      const employee = row.getValue("employee") as User;
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium">
-            {employee?.firstName} {employee?.lastName}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {employee?.employeeId}
-          </span>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+        className="translate-y-[2px]"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
   },
   {
     id: "combinedName",
@@ -54,9 +62,42 @@ export const columns: ColumnDef<Advance>[] = [
     cell: () => null, // This ensures nothing renders in the cell
   },
   {
+    accessorKey: "employee",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="whitespace-nowrap"
+      >
+        Employee
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const employee = row.getValue("employee") as User;
+      return (
+        <div className="flex flex-col">
+          <span className="font-medium">
+            {employee?.firstName} {employee?.lastName}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {employee?.employeeId}
+          </span>
+        </div>
+      );
+    },
+    filterFn: customIncludesStringFilter,
+  },
+  {
     accessorKey: "amount",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Amount" />
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Amount
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
     ),
     cell: ({ row }) => {
       const amount = row.getValue("amount") as number;
@@ -74,7 +115,6 @@ export const columns: ColumnDef<Advance>[] = [
     ),
     cell: ({ row }) => <div>{row.getValue("purpose")}</div>,
   },
-
   {
     accessorKey: "totalRepayment",
     header: ({ column }) => (
@@ -140,28 +180,36 @@ export const columns: ColumnDef<Advance>[] = [
       </div>
     ),
   },
-
   {
     accessorKey: "status",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Status
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
     ),
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
+
       return (
         <Badge
           className={
             status === "approved"
-              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+              ? "bg-green-100 text-white dark:bg-green-900 dark:text-white"
+              : status === "pending"
+              ? "bg-yellow-100 text-white dark:bg-yellow-900 dark:text-white"
               : status === "declined"
-              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+              ? "bg-red-100 text-white dark:bg-red-900 dark:text-white"
               : status === "repaying"
-              ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300"
+              ? "bg-blue-100 text-white dark:bg-blue-900 dark:text-white"
               : status === "repaid"
-              ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
+              ? "bg-green-100 text-white dark:bg-green-900 dark:text-white"
               : status === "disbursed"
-              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300" // pending
+              ? "bg-cyan-600 text-white dark:bg-cyan-600 dark:text-white"
+              : "bg-gray-100 text-white dark:bg-gray-900 dark:text-white"
           }
         >
           {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -170,7 +218,29 @@ export const columns: ColumnDef<Advance>[] = [
     },
   },
   {
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Date
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="font-medium">
+          {format(new Date(row.getValue("createdAt")), "PPP")}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ];
+
+
+

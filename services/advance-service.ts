@@ -318,3 +318,40 @@ export async function generateReport(format: "csv" | "excel"): Promise<Blob> {
     throw error;
   }
 }
+
+interface BatchRepaymentResult {
+  updated: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    amountRepaid: number;
+  }>;
+  failed: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    reason: string;
+  }>;
+}
+
+export async function batchMarkAdvancesAsRepaid(
+  advanceIds: string[]
+): Promise<BatchRepaymentResult> {
+  try {
+    const config = await getAxiosConfig();
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/advances/batch-mark-repaid`,
+      { advanceIds },
+      config
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+    console.error("Failed to batch mark advances as repaid:", error);
+    throw error;
+  }
+}

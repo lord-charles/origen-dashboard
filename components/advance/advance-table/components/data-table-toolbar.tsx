@@ -1,7 +1,7 @@
 "use client";
 
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { Table } from "@tanstack/react-table";
+import { Row, Table } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
@@ -10,13 +10,20 @@ import { Download } from "lucide-react";
 import { saveAs } from "file-saver";
 import json2csv from "json2csv";
 import { format } from "date-fns";
+import { Advance } from "@/types/advance";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  hasSelection: boolean;
+  setIsDialogOpen: (open: boolean) => void;
+  selectedAdvances: Row<Advance>[];
 }
 
 export function DataTableToolbar<TData>({
   table,
+  hasSelection,
+  setIsDialogOpen,
+  selectedAdvances,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -120,7 +127,7 @@ export function DataTableToolbar<TData>({
             ]}
           />
         )}
-
+       
         {isFiltered && (
           <Button
             variant="ghost"
@@ -133,6 +140,15 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center gap-2">
+      {hasSelection && (
+          <Button
+            variant="default"
+            onClick={() => setIsDialogOpen(true)}
+            className="ml-auto h-7"
+          >
+            Mark Selected as Repaid ({selectedAdvances.length})
+          </Button>
+        )}
         <DataTableViewOptions table={table} />
         <Button className="h-8" variant="outline" onClick={handleExport}>
           Export <Download className="ml-2 h-4 w-4" />
