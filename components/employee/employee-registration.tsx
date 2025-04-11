@@ -468,7 +468,7 @@ export function RegisterEmployeeComponent() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="payrollNumber">Payroll Number</Label>
+                      <Label htmlFor="payrollNumber">OR Number</Label>
                       <Input
                         id="payrollNumber"
                         {...register("payrollNumber")}

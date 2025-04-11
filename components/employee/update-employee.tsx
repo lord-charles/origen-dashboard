@@ -449,7 +449,7 @@ export function UpdateEmployeeComponent({ employee }: any) {
                     {/* Payroll Number */}
                     <div className="space-y-2">
                       <Label htmlFor="payrollNumber">
-                        Payroll Number (Optional)
+                      OR Number
                       </Label>
                       <Input
                         id="payrollNumber"

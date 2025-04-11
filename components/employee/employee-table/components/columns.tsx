@@ -59,8 +59,8 @@ export const columns: ColumnDef<User>[] = [
             <span>{row.original.email || "No email"}</span>
             <span>
               {row.original.payrollNumber
-                ? `Payroll No: ${row.original.payrollNumber}`
-                : "No Payroll Number Set"}
+                ? `OR No: ${row.original.payrollNumber}`
+                : "No OR Number Set"}
             </span>
           </div>
         </div>
