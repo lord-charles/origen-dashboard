@@ -149,6 +149,12 @@ export async function updateAdvanceStatus(
     }
 
     console.error("Failed to update advance status:", error);
+    
+    // Re-throw with the error message from the backend
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    
     throw error;
   }
 }

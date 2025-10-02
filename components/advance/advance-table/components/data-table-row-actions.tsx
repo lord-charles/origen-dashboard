@@ -35,12 +35,13 @@ export function DataTableRowActions<TData>({
   const handleStatusChange = async (newStatus: string) => {
     try {
       const result = await updateAdvanceStatus(advance._id, newStatus);
+      console.log("Advance status updated:", result);
       if (result) {
         toast({
           title: "Success",
           description: "Advance status updated successfully",
-        }),
-          window.location.reload();
+        });
+        window.location.reload();
       } else {
         toast({
           title: "Error",
@@ -49,9 +50,11 @@ export function DataTableRowActions<TData>({
         });
       }
     } catch (error) {
+      console.error("Error updating advance status:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to update advance status";
       toast({
         title: "Error",
-        description: "Failed to update advance status",
+        description: errorMessage,
         variant: "destructive",
       });
     }

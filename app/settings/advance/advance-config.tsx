@@ -86,6 +86,8 @@ const formSchema = z.object({
   advanceMaxRepaymentPeriod: z.number().int().positive(),
   maxAdvancePercentage: z.number().min(0).max(100),
   maxActiveAdvances: z.number().int().positive(),
+  advanceMinAmount: z.number().min(0),
+  advanceMaxAmount: z.number().min(0),
 });
 
 type SuspensionPeriod = {
@@ -139,6 +141,8 @@ export default function AdvanceConfigPage({
       advanceMaxRepaymentPeriod: initialConfig.data.advanceMaxRepaymentPeriod,
       maxAdvancePercentage: initialConfig.data.maxAdvancePercentage,
       maxActiveAdvances: initialConfig.data.maxActiveAdvances,
+      advanceMinAmount: initialConfig.data.advanceMinAmount ?? 0,
+      advanceMaxAmount: initialConfig.data.advanceMaxAmount ?? 0,
     },
   });
 
@@ -367,6 +371,29 @@ export default function AdvanceConfigPage({
               />
               <FormField
                 control={form.control}
+                name="advanceMinAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Minimum Advance Amount (KES)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="1"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(Number.parseInt(e.target.value || '0'))
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Set the minimum amount that can be requested as an advance
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="advanceMinRepaymentPeriod"
                 render={({ field }) => (
                   <FormItem>
@@ -380,6 +407,29 @@ export default function AdvanceConfigPage({
                         }
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="advanceMaxAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Maximum Advance Amount (KES)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="1"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(Number.parseInt(e.target.value || '0'))
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Set the maximum amount that can be requested as an advance
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -30,7 +30,7 @@ interface AdvanceDetailsSheetProps {
   advance: Advance;
   isOpen: boolean;
   onClose: () => void;
-  onStatusChange: (newStatus: string) => void;
+  onStatusChange: (newStatus: string) => Promise<void>;
 }
 
 const formatCurrency = (amount: number) => {
@@ -119,16 +119,6 @@ export function AdvanceDetailsSheet({
     setIsLoading(true);
     try {
       await onStatusChange(newStatus);
-      toast({
-        title: "Success",
-        description: "Advance status updated successfully",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update advance status",
-      });
     } finally {
       setIsLoading(false);
     }
@@ -138,6 +128,8 @@ export function AdvanceDetailsSheet({
     switch (status.toLowerCase()) {
       case "pending":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case "under_review":
+        return "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300";
       case "approved":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
       case "declined":
@@ -158,22 +150,24 @@ export function AdvanceDetailsSheet({
     newStatus: string
   ) => {
     const validTransitions: { [key: string]: string[] } = {
-      pending: ["approved", "declined"],
-      approved: ["disbursed"],
+      pending: ["under_review", "declined"],
+      under_review: ["approved", "declined"],
+      approved: ["disbursed", "declined"],
       declined: [],
       disbursed: ["repaying"],
       repaying: ["repaid"],
       repaid: [],
     };
 
-    return validTransitions[currentStatus].includes(newStatus);
+    return validTransitions[currentStatus]?.includes(newStatus) || false;
   };
 
   const statusDisplayMap = {
     pending: "Pending",
-    approved: "Approve",
-    declined: "Decline",
-    disbursed: "Disburse",
+    under_review: "Under Review",
+    approved: "Approved",
+    declined: "Declined",
+    disbursed: "Disbursed",
     repaying: "Repaying",
     repaid: "Repaid",
   } as const;
@@ -253,9 +247,11 @@ export function AdvanceDetailsSheet({
                   <SelectContent>
                     {[
                       "pending",
+                      "under_review",
                       "approved",
                       "declined",
                       "disbursed",
+                      "repaying",
                       "repaid",
                     ].map((status) => (
                       <SelectItem key={status} value={status}>
@@ -393,14 +389,38 @@ export function AdvanceDetailsSheet({
             </CardContent>
           </Card>
 
-          {/* Approval and Disbursement Details */}
-          {(advance.approvedBy || advance.disbursedBy) && (
+          {/* Review, Approval and Disbursement Details */}
+          {(advance.reviewedBy || advance.approvedBy || advance.disbursedBy) && (
             <Card className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950 dark:to-yellow-950">
               <CardContent className="pt-6">
                 <h3 className="text-lg font-semibold mb-4">
                   Processing Details
                 </h3>
                 <div className="space-y-6">
+                  {/* Review Details */}
+                  {advance.reviewedBy && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium">Review Information</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-sm text-muted-foreground">
+                            Reviewed By
+                          </span>
+                          <div className="space-y-1">
+                            <p className="font-medium">
+                              {advance?.reviewedBy?.firstName}{" "}
+                              {advance?.reviewedBy?.lastName}
+                            </p>
+                            <span className="text-sm text-muted-foreground">
+                              {advance?.reviewedBy?.employeeId}
+                            </span>
+                          </div>
+                        </div>
+                       
+                      </div>
+                    </div>
+                  )}
+
                   {/* Approval Details */}
                   {advance.approvedBy && (
                     <div className="space-y-2">
@@ -431,13 +451,14 @@ export function AdvanceDetailsSheet({
                           </p>
                         </div>
                       </div>
+                     
                     </div>
                   )}
 
                   {/* Disbursement Details */}
                   {advance.disbursedBy && (
                     <div className="space-y-2">
-                      <h4 className="font-medium">Disbursement Information</h4>
+                      <h1 className="font-medium">Disbursement Information</h1>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <span className="text-sm text-muted-foreground">

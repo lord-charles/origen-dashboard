@@ -2,6 +2,7 @@ export type PaymentMethod = "mpesa" | "bank" | "cash" | "wallet";
 
 export type AdvanceStatus =
   | "pending"
+  | "under_review"
   | "approved"
   | "declined"
   | "disbursed"
@@ -37,6 +38,7 @@ export interface Advance {
   approvedDate?: string;
   disbursedBy?: AdvanceEmployee;
   disbursedDate?: string;
+  reviewedBy?: AdvanceEmployee;
 }
 
 export interface PaginatedAdvances {
