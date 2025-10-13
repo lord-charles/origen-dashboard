@@ -139,3 +139,99 @@ export async function getProfile(): Promise<User[]> {
     throw error?.response?.data.message || error;
   }
 }
+
+interface AdvanceReviewer {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  level: number;
+  isActive: boolean;
+}
+
+interface AdvanceApprover {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  maxApprovalAmount: number;
+  isActive: boolean;
+}
+
+export async function appointAsReviewer(
+  employee: User,
+  level: number = 1
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const config = await getAxiosConfig();
+
+    const reviewerData: AdvanceReviewer = {
+      userId: employee._id,
+      name: `${employee.firstName} ${employee.lastName}`,
+      email: employee.email,
+      phone: employee.phoneNumber || "",
+      level,
+      isActive: true,
+    };
+
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/advance-reviewers`,
+      { advanceReviewers: [reviewerData] },
+      config
+    );
+
+    return { success: true };
+  } catch (error: any) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
+    let errorMessage = "Failed to appoint as reviewer";
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error instanceof AxiosError && error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+}
+
+export async function appointAsApprover(
+  employee: User,
+  maxApprovalAmount: number = 100000
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const config = await getAxiosConfig();
+
+    const approverData: AdvanceApprover = {
+      userId: employee._id,
+      name: `${employee.firstName} ${employee.lastName}`,
+      email: employee.email,
+      phone: employee.phoneNumber || "",
+      maxApprovalAmount,
+      isActive: true,
+    };
+
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/system-config/advance_config/advance-approvers`,
+      { advanceApprovers: [approverData] },
+      config
+    );
+
+    return { success: true };
+  } catch (error: any) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await handleUnauthorized();
+    }
+
+    let errorMessage = "Failed to appoint as approver";
+    if (error instanceof AxiosError && error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error instanceof AxiosError && error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+}

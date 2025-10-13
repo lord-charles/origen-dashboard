@@ -64,6 +64,24 @@ interface SuspensionPeriod {
   updatedBy: User;
 }
 
+interface AdvanceReviewer {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  level: number;
+  isActive: boolean;
+}
+
+interface AdvanceApprover {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  maxApprovalAmount: number;
+  isActive: boolean;
+}
+
 interface AdvanceConfigData {
   advanceDefaultInterestRate: number;
   advanceMinAmount: number;
@@ -73,6 +91,8 @@ interface AdvanceConfigData {
   advancePurposes: string[];
   maxAdvancePercentage: number;
   maxActiveAdvances: number;
+  advanceReviewers?: AdvanceReviewer[];
+  advanceApprovers?: AdvanceApprover[];
 }
 
 export interface AdvanceConfig {
@@ -96,26 +116,25 @@ export interface Balance {
       lastUpdated: string;
     };
     utility: {
-    balance: number;
-    currency: string;
-    lastUpdated: string;
+      balance: number;
+      currency: string;
+      lastUpdated: string;
+    };
+    chargespaid: {
+      balance: number;
+      currency: string;
+      lastUpdated: string;
+    };
+    merchant: {
+      balance: number;
+      currency: string;
+      lastUpdated: string;
+    };
+    organizationsettlement: {
+      balance: number;
+      currency: string;
+      lastUpdated: string;
+    };
   };
-  chargespaid: {
-    balance: number;
-    currency: string;
-    lastUpdated: string;
-  };
-  merchant: {
-    balance: number;
-    currency: string;
-    lastUpdated: string;
-  };
-  organizationsettlement: {
-    balance: number;
-    currency: string;
-    lastUpdated: string;
-  };
-}
-pendingWithdrawals: number;
-
+  pendingWithdrawals: number;
 }

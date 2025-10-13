@@ -1,7 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getAdvanceConfig, addSuspensionPeriod, updateSuspensionPeriod, deleteSuspensionPeriod, updateAdvanceConfig } from "@/services/advance-service";
+import { useState } from "react";
+import {
+  addSuspensionPeriod,
+  updateSuspensionPeriod,
+  deleteSuspensionPeriod,
+  updateAdvanceConfig,
+} from "@/services/advance-service";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -48,7 +53,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -61,6 +65,24 @@ import {
 } from "@/components/ui/pagination";
 import { Separator } from "@/components/ui/separator";
 import { AdvanceConfig } from "@/types/advance";
+
+type AdvanceReviewer = {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  level: number;
+  isActive: boolean;
+};
+
+type AdvanceApprover = {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  maxApprovalAmount: number;
+  isActive: boolean;
+};
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -79,6 +101,10 @@ import {
   DrawerFooter,
   DrawerClose,
 } from "@/components/ui/drawer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Users, UserCheck, AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 const formSchema = z.object({
   advanceDefaultInterestRate: z.number().min(0).max(100),
@@ -116,6 +142,7 @@ export default function AdvanceConfigPage({
   initialConfig,
 }: AdvanceConfigPageProps) {
   const { toast } = useToast();
+
   const [loading, setLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
@@ -131,6 +158,13 @@ export default function AdvanceConfigPage({
       createdBy: period.createdBy,
       updatedBy: period.updatedBy,
     }))
+  );
+
+  const [reviewers] = useState<AdvanceReviewer[]>(
+    initialConfig.data.advanceReviewers || []
+  );
+  const [approvers] = useState<AdvanceApprover[]>(
+    initialConfig.data.advanceApprovers || []
   );
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -165,12 +199,12 @@ export default function AdvanceConfigPage({
     try {
       setConfigSaving(true);
       await updateAdvanceConfig(values);
-      
+
       toast({
         title: "Success",
         description: "Advance configurations updated successfully",
       });
-      
+
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -204,7 +238,6 @@ export default function AdvanceConfigPage({
           endDate: endDate.toISOString(),
           reason: reason,
           isActive: true,
-
         });
 
         const startDateNew = new Date(newPeriod.startDate);
@@ -259,9 +292,9 @@ export default function AdvanceConfigPage({
         suspensionPeriods.map((p) =>
           p.id === period.id
             ? {
-              ...period,
-              updatedBy: updatedPeriod.updatedBy,
-            }
+                ...period,
+                updatedBy: updatedPeriod.updatedBy,
+              }
             : p
         )
       );
@@ -324,8 +357,10 @@ export default function AdvanceConfigPage({
     <Card className="shadow-lg">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <div >
-            <CardTitle className="text-2xl">Advance Salary Configuration</CardTitle>
+          <div>
+            <CardTitle className="text-2xl">
+              Advance Salary Configuration
+            </CardTitle>
             <CardDescription>
               Configure advanced settings for salary advances
             </CardDescription>
@@ -339,7 +374,6 @@ export default function AdvanceConfigPage({
             Save Configuration
           </Button>
         </div>
-
       </CardHeader>
       <Separator />
       <CardContent className="pt-6">
@@ -381,7 +415,7 @@ export default function AdvanceConfigPage({
                         step="1"
                         {...field}
                         onChange={(e) =>
-                          field.onChange(Number.parseInt(e.target.value || '0'))
+                          field.onChange(Number.parseInt(e.target.value || "0"))
                         }
                       />
                     </FormControl>
@@ -423,7 +457,7 @@ export default function AdvanceConfigPage({
                         step="1"
                         {...field}
                         onChange={(e) =>
-                          field.onChange(Number.parseInt(e.target.value || '0'))
+                          field.onChange(Number.parseInt(e.target.value || "0"))
                         }
                       />
                     </FormControl>
@@ -504,259 +538,476 @@ export default function AdvanceConfigPage({
               )}
             />
 
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Suspension Periods</h3>
-                <Drawer>
-                  <DrawerTrigger asChild>
-                    <Button variant="outline">
-                      <Plus className="mr-2 h-4 w-4" /> Add Period
-                    </Button>
-                  </DrawerTrigger>
-                  <DrawerContent>
-                    <div className="mx-auto w-full max-w-4xl">
-                      <DrawerHeader className="border-b">
-                        <DrawerTitle>Add Suspension Period</DrawerTitle>
-                        <DrawerDescription>
-                          Set the date range and reason for the suspension period.
-                        </DrawerDescription>
-                      </DrawerHeader>
-                      
-                      <div className="px-6 py-8">
-                        <div className="grid gap-8 max-w-2xl mx-auto">
-                          {/* Date Range Section */}
-                          <div className="space-y-4">
-                            <div>
-                              <h3 className="text-sm font-medium mb-2">Date Range</h3>
-                              <p className="text-sm text-muted-foreground mb-4">
-                                Select the start and end dates for the suspension period.
-                              </p>
-                            </div>
-                            <Popover modal={true}>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  id="date-range"
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full justify-start text-left font-normal",
-                                    !dateRange.from && "text-muted-foreground"
-                                  )}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {dateRange.from ? (
-                                    dateRange.to ? (
-                                      <>
-                                        {format(dateRange.from, "LLL dd, y")} -{" "}
-                                        {format(dateRange.to, "LLL dd, y")}
-                                      </>
-                                    ) : (
-                                      format(dateRange.from, "LLL dd, y")
-                                    )
-                                  ) : (
-                                    <span>Pick a date range</span>
-                                  )}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent 
-                                className="w-auto p-0" 
-                                align="start"
-                                side="bottom"
-                              >
-                                <Calendar
-                                  initialFocus
-                                  mode="range"
-                                  defaultMonth={dateRange.from}
-                                  selected={dateRange}
-                                  onSelect={(range) => {
-                                    setDateRange({
-                                      from: range?.from,
-                                      to: range?.to,
-                                    });
-                                  }}
-                                  numberOfMonths={2}
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </div>
+            <div className="space-y-6">
+              <Tabs defaultValue="suspension-periods" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger
+                    value="suspension-periods"
+                    className="flex items-center gap-2"
+                  >
+                    <AlertCircle className="h-4 w-4" />
+                    Suspension Periods
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="reviewers"
+                    className="flex items-center gap-2"
+                  >
+                    <Users className="h-4 w-4" />
+                    Reviewers ({reviewers.length})
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="approvers"
+                    className="flex items-center gap-2"
+                  >
+                    <UserCheck className="h-4 w-4" />
+                    Approvers ({approvers.length})
+                  </TabsTrigger>
+                </TabsList>
 
-                          {/* Reason Section */}
-                          <div className="space-y-4">
-                            <div>
-                              <h3 className="text-sm font-medium mb-2">Reason</h3>
-                              <p className="text-sm text-muted-foreground mb-4">
-                                Provide a reason for the suspension period.
-                              </p>
-                            </div>
-                            <Input
-                              id="reason"
-                              placeholder="Enter reason for suspension"
-                              value={reason}
-                              onChange={(e) => setReason(e.target.value)}
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <DrawerFooter className="border-t px-6 py-4">
-                        <div className="flex justify-end gap-4">
-                          <DrawerClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                          </DrawerClose>
-                          <Button 
-                            onClick={addNewSuspensionPeriod}
-                            disabled={loading || !dateRange.from || !dateRange.to || !reason}
-                          >
-                            {loading ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <Plus className="mr-2 h-4 w-4" />
-                            )}
-                            Add Period
-                          </Button>
-                        </div>
-                      </DrawerFooter>
+                <TabsContent value="suspension-periods" className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-medium">
+                        Suspension Periods
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Manage periods when advance requests are suspended
+                      </p>
                     </div>
-                  </DrawerContent>
-                </Drawer>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>End Date</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created By</TableHead>
-                    <TableHead>Updated By</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentPeriods.map((period) => (
-                    <TableRow key={period.id}>
-                      <TableCell>
-                        {period.startDate && !isNaN(period.startDate.getTime())
-                          ? format(period.startDate, "LLL dd, y")
-                          : "Invalid date"}
-                      </TableCell>
-                      <TableCell>
-                        {period.endDate && !isNaN(period.endDate.getTime())
-                          ? format(period.endDate, "LLL dd, y")
-                          : "Invalid date"}
-                      </TableCell>
-                      <TableCell>{period.reason}</TableCell>
-                      <TableCell>
-                        <Select
-                          value={period.isActive.toString()}
-                          onValueChange={(value) => {
-                            const updatedPeriod = {
-                              ...period,
-                              isActive: value === "true",
-                            };
-                            updateSuspensionPeriodHandler(updatedPeriod);
-                          }}
-                        >
-                          <SelectTrigger className="w-[100px]">
-                            <SelectValue>
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs ${period.isActive
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-red-100 text-red-800"
-                                  }`}
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button variant="outline">
+                          <Plus className="mr-2 h-4 w-4" /> Add Period
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <div className="mx-auto w-full max-w-4xl">
+                          <DrawerHeader className="border-b">
+                            <DrawerTitle>Add Suspension Period</DrawerTitle>
+                            <DrawerDescription>
+                              Set the date range and reason for the suspension
+                              period.
+                            </DrawerDescription>
+                          </DrawerHeader>
+
+                          <div className="px-6 py-8">
+                            <div className="grid gap-8 max-w-2xl mx-auto">
+                              {/* Date Range Section */}
+                              <div className="space-y-4">
+                                <div>
+                                  <h3 className="text-sm font-medium mb-2">
+                                    Date Range
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground mb-4">
+                                    Select the start and end dates for the
+                                    suspension period.
+                                  </p>
+                                </div>
+                                <Popover modal={true}>
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      id="date-range"
+                                      variant={"outline"}
+                                      className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !dateRange.from &&
+                                          "text-muted-foreground"
+                                      )}
+                                    >
+                                      <CalendarIcon className="mr-2 h-4 w-4" />
+                                      {dateRange.from ? (
+                                        dateRange.to ? (
+                                          <>
+                                            {format(
+                                              dateRange.from,
+                                              "LLL dd, y"
+                                            )}{" "}
+                                            -{" "}
+                                            {format(dateRange.to, "LLL dd, y")}
+                                          </>
+                                        ) : (
+                                          format(dateRange.from, "LLL dd, y")
+                                        )
+                                      ) : (
+                                        <span>Pick a date range</span>
+                                      )}
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className="w-auto p-0"
+                                    align="start"
+                                    side="bottom"
+                                  >
+                                    <Calendar
+                                      initialFocus
+                                      mode="range"
+                                      defaultMonth={dateRange.from}
+                                      selected={dateRange}
+                                      onSelect={(range) => {
+                                        setDateRange({
+                                          from: range?.from,
+                                          to: range?.to,
+                                        });
+                                      }}
+                                      numberOfMonths={2}
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+
+                              {/* Reason Section */}
+                              <div className="space-y-4">
+                                <div>
+                                  <h3 className="text-sm font-medium mb-2">
+                                    Reason
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground mb-4">
+                                    Provide a reason for the suspension period.
+                                  </p>
+                                </div>
+                                <Input
+                                  id="reason"
+                                  placeholder="Enter reason for suspension"
+                                  value={reason}
+                                  onChange={(e) => setReason(e.target.value)}
+                                  className="w-full"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <DrawerFooter className="border-t px-6 py-4">
+                            <div className="flex justify-end gap-4">
+                              <DrawerClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                              </DrawerClose>
+                              <Button
+                                onClick={addNewSuspensionPeriod}
+                                disabled={
+                                  loading ||
+                                  !dateRange.from ||
+                                  !dateRange.to ||
+                                  !reason
+                                }
                               >
-                                {period.isActive ? "Active" : "Inactive"}
-                              </span>
-                            </SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="true">Active</SelectItem>
-                            <SelectItem value="false">Inactive</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        {period.createdBy
-                          ? `${period.createdBy.firstName} ${period.createdBy.lastName}`
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        {period.updatedBy
-                          ? `${period.updatedBy.firstName} ${period.updatedBy.lastName}`
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setEditingPeriod(period)}
-                            disabled={updateLoading === period.id}
-                          >
-                            {updateLoading === period.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Pencil className="h-4 w-4" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteSuspensionPeriod(period.id)}
-                            disabled={deleteLoading === period.id || updateLoading === period.id}
-                          >
-                            {deleteLoading === period.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash className="h-4 w-4" />
-                            )}
-                          </Button>
+                                {loading ? (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Plus className="mr-2 h-4 w-4" />
+                                )}
+                                Add Period
+                              </Button>
+                            </div>
+                          </DrawerFooter>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={
-                        currentPage === 1
-                          ? undefined
-                          : () =>
-                            setCurrentPage((prev) => Math.max(prev - 1, 1))
-                      }
-                      className={
-                        currentPage === 1
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }
-                    />
-                  </PaginationItem>
-                  {[...Array(totalPages)].map((_, index) => (
-                    <PaginationItem key={index}>
-                      <PaginationLink
-                        onClick={() => setCurrentPage(index + 1)}
-                        isActive={currentPage === index + 1}
-                      >
-                        {index + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                      }
-                      isActive={currentPage === totalPages}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+                      </DrawerContent>
+                    </Drawer>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Start Date</TableHead>
+                        <TableHead>End Date</TableHead>
+                        <TableHead>Reason</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Created By</TableHead>
+                        <TableHead>Updated By</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {currentPeriods.map((period) => (
+                        <TableRow key={period.id}>
+                          <TableCell>
+                            {period.startDate &&
+                            !isNaN(period.startDate.getTime())
+                              ? format(period.startDate, "LLL dd, y")
+                              : "Invalid date"}
+                          </TableCell>
+                          <TableCell>
+                            {period.endDate && !isNaN(period.endDate.getTime())
+                              ? format(period.endDate, "LLL dd, y")
+                              : "Invalid date"}
+                          </TableCell>
+                          <TableCell>{period.reason}</TableCell>
+                          <TableCell>
+                            <Select
+                              value={period.isActive.toString()}
+                              onValueChange={(value) => {
+                                const updatedPeriod = {
+                                  ...period,
+                                  isActive: value === "true",
+                                };
+                                updateSuspensionPeriodHandler(updatedPeriod);
+                              }}
+                            >
+                              <SelectTrigger className="w-[100px]">
+                                <SelectValue>
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-xs ${
+                                      period.isActive
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
+                                    }`}
+                                  >
+                                    {period.isActive ? "Active" : "Inactive"}
+                                  </span>
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="true">Active</SelectItem>
+                                <SelectItem value="false">Inactive</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
+                            {period.createdBy
+                              ? `${period.createdBy.firstName} ${period.createdBy.lastName}`
+                              : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {period.updatedBy
+                              ? `${period.updatedBy.firstName} ${period.updatedBy.lastName}`
+                              : "-"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setEditingPeriod(period)}
+                                disabled={updateLoading === period.id}
+                              >
+                                {updateLoading === period.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Pencil className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  handleDeleteSuspensionPeriod(period.id)
+                                }
+                                disabled={
+                                  deleteLoading === period.id ||
+                                  updateLoading === period.id
+                                }
+                              >
+                                {deleteLoading === period.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={
+                            currentPage === 1
+                              ? undefined
+                              : () =>
+                                  setCurrentPage((prev) =>
+                                    Math.max(prev - 1, 1)
+                                  )
+                          }
+                          className={
+                            currentPage === 1
+                              ? "pointer-events-none opacity-50"
+                              : ""
+                          }
+                        />
+                      </PaginationItem>
+                      {[...Array(totalPages)].map((_, index) => (
+                        <PaginationItem key={index}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(index + 1)}
+                            isActive={currentPage === index + 1}
+                          >
+                            {index + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() =>
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages)
+                            )
+                          }
+                          isActive={currentPage === totalPages}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </TabsContent>
+
+                <TabsContent value="reviewers" className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-medium">Advance Reviewers</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Employees authorized to review advance requests
+                      </p>
+                    </div>
+                    <Link href="/employees">
+                      <Button variant="outline">
+                        <Users className="mr-2 h-4 w-4" />
+                        Appoint Reviewers
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {reviewers.length === 0 ? (
+                    <Card className="p-8 text-center">
+                      <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">
+                        No Reviewers Appointed
+                      </h3>
+                      <p className="text-muted-foreground mb-4">
+                        No employees have been appointed as advance reviewers
+                        yet.
+                      </p>
+                      <Link href="/employees">
+                        <Button>
+                          <Users className="mr-2 h-4 w-4" />
+                          Go to Employees to Appoint Reviewers
+                        </Button>
+                      </Link>
+                    </Card>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Phone</TableHead>
+                          <TableHead>Level</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {reviewers.map((reviewer) => (
+                          <TableRow key={reviewer.userId}>
+                            <TableCell className="font-medium">
+                              {reviewer.name}
+                            </TableCell>
+                            <TableCell>{reviewer.email}</TableCell>
+                            <TableCell>{reviewer.phone}</TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">
+                                Level {reviewer.level}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  reviewer.isActive ? "default" : "secondary"
+                                }
+                                className={
+                                  reviewer.isActive
+                                    ? "bg-green-100 text-green-800"
+                                    : ""
+                                }
+                              >
+                                {reviewer.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="approvers" className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-medium">Advance Approvers</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Employees authorized to approve advance requests
+                      </p>
+                    </div>
+                    <Link href="/employees">
+                      <Button variant="outline">
+                        <UserCheck className="mr-2 h-4 w-4" />
+                        Appoint Approvers
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {approvers.length === 0 ? (
+                    <Card className="p-8 text-center">
+                      <UserCheck className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">
+                        No Approvers Appointed
+                      </h3>
+                      <p className="text-muted-foreground mb-4">
+                        No employees have been appointed as advance approvers
+                        yet.
+                      </p>
+                      <Link href="/employees">
+                        <Button>
+                          <UserCheck className="mr-2 h-4 w-4" />
+                          Go to Employees to Appoint Approvers
+                        </Button>
+                      </Link>
+                    </Card>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Phone</TableHead>
+                          <TableHead>Max Approval Amount</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {approvers.map((approver) => (
+                          <TableRow key={approver.userId}>
+                            <TableCell className="font-medium">
+                              {approver.name}
+                            </TableCell>
+                            <TableCell>{approver.email}</TableCell>
+                            <TableCell>{approver.phone}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                KES{" "}
+                                {approver.maxApprovalAmount.toLocaleString()}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  approver.isActive ? "default" : "secondary"
+                                }
+                                className={
+                                  approver.isActive
+                                    ? "bg-green-100 text-green-800"
+                                    : ""
+                                }
+                              >
+                                {approver.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
-
-
           </form>
         </Form>
       </CardContent>
