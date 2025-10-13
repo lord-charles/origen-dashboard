@@ -65,7 +65,10 @@ export function AdvanceDetailsSheet({
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
         const balanceData = await getBalance();
-        setBalance(balanceData.accountBalances.utility.balance - balanceData.pendingWithdrawals);
+        setBalance(
+          balanceData.accountBalances.utility.balance -
+            balanceData.pendingWithdrawals
+        );
       } catch (err) {
         setError("Failed to fetch balance. Please try again.");
         toast({
@@ -119,6 +122,10 @@ export function AdvanceDetailsSheet({
     setIsLoading(true);
     try {
       await onStatusChange(newStatus);
+    } catch (error: any) {
+      // Error is already handled in the parent component (data-table-row-actions)
+      // but we can add additional handling here if needed
+      console.error("Status change error in sheet:", error);
     } finally {
       setIsLoading(false);
     }
@@ -390,7 +397,9 @@ export function AdvanceDetailsSheet({
           </Card>
 
           {/* Review, Approval and Disbursement Details */}
-          {(advance.reviewedBy || advance.approvedBy || advance.disbursedBy) && (
+          {(advance.reviewedBy ||
+            advance.approvedBy ||
+            advance.disbursedBy) && (
             <Card className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950 dark:to-yellow-950">
               <CardContent className="pt-6">
                 <h3 className="text-lg font-semibold mb-4">
@@ -416,7 +425,6 @@ export function AdvanceDetailsSheet({
                             </span>
                           </div>
                         </div>
-                       
                       </div>
                     </div>
                   )}
@@ -451,7 +459,6 @@ export function AdvanceDetailsSheet({
                           </p>
                         </div>
                       </div>
-                     
                     </div>
                   )}
 

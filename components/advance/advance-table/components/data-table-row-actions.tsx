@@ -49,9 +49,23 @@ export function DataTableRowActions<TData>({
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating advance status:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to update advance status";
+
+      // Extract user-friendly error message from axios error
+      let errorMessage = "Failed to update advance status";
+
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (
+        error?.message &&
+        !error.message.includes("Request failed with status code")
+      ) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Error",
         description: errorMessage,
