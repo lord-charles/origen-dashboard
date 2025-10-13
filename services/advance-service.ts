@@ -134,7 +134,7 @@ export async function updateAdvanceStatus(
   id: string,
   status: string,
   comments?: string
-): Promise<Advance | null> {
+): Promise<{ success: boolean; data?: Advance; error?: string }> {
   try {
     const config = await getAxiosConfig();
     const { data } = await axios.patch(
@@ -142,20 +142,23 @@ export async function updateAdvanceStatus(
       { status, comments },
       config
     );
-    return data;
+    return { success: true, data };
   } catch (error) {
     if (error instanceof AxiosError && error.response?.status === 401) {
       await handleUnauthorized();
     }
 
     console.error("Failed to update advance status:", error);
-    
-    // Re-throw with the error message from the backend
+
+    // Return error message instead of throwing
+    let errorMessage = "Failed to update advance status";
     if (error instanceof AxiosError && error.response?.data?.message) {
-      throw new Error(error.response.data.message);
+      errorMessage = error.response.data.message;
+    } else if (error instanceof AxiosError && error.response?.data?.error) {
+      errorMessage = error.response.data.error;
     }
-    
-    throw error;
+
+    return { success: false, error: errorMessage };
   }
 }
 
