@@ -174,9 +174,6 @@ export function AdvanceDetailsSheet({
     under_review: "Under Review",
     approved: "Approved",
     declined: "Declined",
-    disbursed: "Disbursed",
-    repaying: "Repaying",
-    repaid: "Repaid",
   } as const;
 
   return (

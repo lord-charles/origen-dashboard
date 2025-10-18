@@ -17,7 +17,9 @@ const customIncludesStringFilter = (
   filterValue: string
 ): boolean => {
   const value = row.getValue(columnId);
-  return value ? value.toString().toLowerCase().includes(filterValue.toLowerCase()) : false;
+  return value
+    ? value.toString().toLowerCase().includes(filterValue.toLowerCase())
+    : false;
 };
 
 export const columns: ColumnDef<Advance>[] = [
@@ -198,18 +200,18 @@ export const columns: ColumnDef<Advance>[] = [
         <Badge
           className={
             status === "approved"
-              ? "bg-green-100 text-white dark:bg-green-900 dark:text-white"
+              ? "bg-green-100  dark:bg-green-900 text-text"
               : status === "pending"
-              ? "bg-yellow-100 text-white dark:bg-yellow-900 dark:text-white"
+              ? "bg-yellow-100  dark:bg-yellow-900 text-text"
               : status === "declined"
-              ? "bg-red-100 text-white dark:bg-red-900 dark:text-white"
+              ? "bg-red-100  dark:bg-red-900  text-text"
               : status === "repaying"
-              ? "bg-blue-100 text-white dark:bg-blue-900 dark:text-white"
+              ? "bg-blue-100  dark:bg-blue-900  text-text"
               : status === "repaid"
-              ? "bg-green-100 text-white dark:bg-green-900 dark:text-white"
+              ? "bg-green-100  dark:bg-green-900  text-text"
               : status === "disbursed"
-              ? "bg-cyan-600 text-white dark:bg-cyan-600 dark:text-white"
-              : "bg-gray-100 text-white dark:bg-gray-900 dark:text-white"
+              ? "bg-cyan-600  dark:bg-cyan-600  text-text"
+              : "bg-gray-100  dark:bg-gray-900  text-text"
           }
         >
           {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -241,6 +243,3 @@ export const columns: ColumnDef<Advance>[] = [
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ];
-
-
-
